@@ -1,2 +1,2 @@
-# super-daniel-bros
+# Super Daniel Bros
 EiP Praktikum
