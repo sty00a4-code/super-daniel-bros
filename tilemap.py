@@ -1,0 +1,179 @@
+import pygame as pg
+from pygame import *
+from pickle import loads, dumps
+global CAMERA
+
+TILE_SIZE = 16
+class Tile:
+    def __init__(self, tile: int, data: dict[str, any]):
+        self.tile = tile
+        self.data = data
+    def get(self, key: str) -> any:
+        """get data
+
+        Args:
+            key (str): name of data
+
+        Returns:
+            any: data
+        """
+        if key in self.data:
+            return self.data[key]
+    def set(self, key: str, value: any):
+        """set the data
+
+        Args:
+            key (str): name of data
+            value (any): (new) data
+        """
+        self.data[key] = value
+class TileMap:
+    def __init__(self, tiles: list[list[Tile|int]], width, height):
+        self.tiles = []
+        for y in range(height):
+            self.tiles.append([])
+            for x in range(width):
+                if len(tiles) > y:
+                    if len(tiles[y]) > x:
+                        self.tiles[y].append(tiles[y][x])
+                        continue
+                self.tiles[y].append(0)
+        self.width = width
+        self.height = height
+    
+    def extend_height(self, height: int):
+        if self.height < height:
+            self.tiles.extend([[0 for _ in range(self.width)] for _ in range(self.height, height)])
+            self.height = height
+    def extend_width(self, width: int):
+        if self.width < width:
+            for y in range(self.height):
+                self.tiles[y].extend([0 for _ in range(self.width, width)])
+    
+    def get(self, x: int, y: int) -> Tile|int|None:
+        """Gives back tile
+
+        Args:
+            x (int): x position in tiles
+            y (int): y position in tiles
+
+        Returns:
+            Tile|int|None: tile ID or Tile with Data if any tile is there
+        """
+        if not (0 <= y < len(self.tiles)):
+            return None
+        row = self.tiles[y]
+        if not (0 <= x < len(row)):
+            return None
+        return row[x]
+    
+    def get_rect(self, x: int, y: int) -> Rect:
+        """Get the Rect at that position for collision handling
+
+        Args:
+            x (int): x position in tiles
+            y (int): y position in tiles
+
+        Returns:
+            Rect: 16x16 Rect at that position
+        """
+        return Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+    
+    def real_to_tile(self, x: float, y: float) -> tuple[int, int]:
+        """Get the tile position of the real world position
+
+        Args:
+            x (float): x real world coordinate
+            y (float): y real world coordinate
+
+        Returns:
+            tuple[int, int]: (x, y) in tile position
+        """
+        return (int(x / TILE_SIZE), int(y / TILE_SIZE))
+    
+    def set(self, x: int, y: int, tile: Tile|int) -> bool:
+        """set tile at the position to `tile`
+
+        Args:
+            x (int): x tile position
+            y (int): y tile position
+            tile (Tile | int): new tile
+
+        Returns:
+            bool: successful
+        """
+        if not (0 <= y < len(self.tiles)):
+            return False
+        if not (0 <= x < len(self.tiles[y])):
+            return False
+        self.tiles[y][x] = tile
+        return True
+    
+    def draw(self, surface: Surface, camera: Vector2):
+        start = camera / TILE_SIZE
+        (width, height) = surface.get_size()
+        end = start + Vector2(width, height) / TILE_SIZE
+        for y in range(int(start.y), int(end.y)):
+            for x in range(int(start.x), int(end.x)):
+                tile = self.get(x, y)
+                if tile is not None:
+                    pos = Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera
+                    if tile == 1:
+                        draw.rect(surface, Color(0, 0, 0), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
+
+def load_map(name: str) -> TileMap:
+    with open(f"level/{name}.pickle", "rb") as file:
+        return loads(file.read())
+def save_map(name: str, tilemap: TileMap):
+    with open(f"level/{name}.pickle", "wb") as file:
+        file.write(dumps(tilemap))
+
+if __name__ == "__main__":
+    from sys import argv
+    from os.path import exists
+    
+    argv.pop(0)
+    if len(argv) < 1:
+        print("[ERROR] No level name given")
+        exit(1)
+    level_name = argv.pop(0)
+    
+    if not exists(f"level/{level_name}.pickle"):
+        save_map(level_name, TileMap([[0]], 1, 1))
+    tilemap = load_map(level_name)
+    
+    init()
+    window = display.set_mode((1920 / 2, 1080 / 2))
+    screen = Surface((1920 / 4, 1080 / 4))
+    display.set_caption(f"Level: {level_name}")
+    clock = time.Clock()
+    
+    camera = Vector2(0, 0)
+    mouse_down = False
+    while True:
+        for e in event.get():
+            match e.type:
+                case pg.MOUSEBUTTONDOWN:
+                    mouse_down = True
+                case pg.MOUSEBUTTONUP:
+                    mouse_down = False
+                case pg.QUIT:
+                    exit()
+                    quit()
+    
+        if mouse_down:
+            tile_pos = Vector2(mouse.get_pos()) / (TILE_SIZE * 2)
+            tilemap.extend_height(int(tile_pos.y) + 1)
+            tilemap.extend_width(int(tile_pos.x) + 1)
+            tile_pos -= camera
+            tilemap.set(int(tile_pos.x), int(tile_pos.y), 1)
+            save_map(level_name, tilemap)
+
+        screen.fill("cyan")
+        # Draw Start
+        tilemap.draw(screen, camera)
+        # Draw End
+        window.blit(transform.scale(screen, window.get_size()), (0, 0))
+        display.flip()
+        clock.tick(60)
+                
