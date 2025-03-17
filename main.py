@@ -1,9 +1,8 @@
-import pygame as pg
 from pygame import *
 
-pg.init()
-screen = pg.display.set_mode((1920 / 2, 1080 / 2), )
-clock = pg.time.Clock()
+init()
+screen = display.set_mode((1920 / 2, 1080 / 2))
+clock = time.Clock()
 running = True
 
 while running:
@@ -18,4 +17,4 @@ while running:
     display.flip()
     clock.tick(60)
 
-pg.quit()
+quit()
