@@ -113,13 +113,15 @@ class TileMap:
         start = camera / TILE_SIZE
         (width, height) = surface.get_size()
         end = start + Vector2(width, height) / TILE_SIZE
-        for y in range(int(start.y), int(end.y)):
-            for x in range(int(start.x), int(end.x)):
+        for y in range(int(start.y), int(end.y) + 1):
+            for x in range(int(start.x), int(end.x) + 1):
                 tile = self.get(x, y)
                 if tile is not None:
                     pos = Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera
                     if tile == 1:
                         draw.rect(surface, Color(0, 0, 0), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
+                    elif tile == 2:
+                        draw.rect(surface, Color(0, 0, 255), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
 
 def load_map(name: str) -> TileMap:
     with open(f"level/{name}.pickle", "rb") as file:
@@ -148,27 +150,33 @@ if __name__ == "__main__":
     display.set_caption(f"Level: {level_name}")
     clock = time.Clock()
     
+    selected = 1
     camera = Vector2(0, 0)
-    mouse_down = False
     while True:
         for e in event.get():
+            # print(e)
             match e.type:
-                case pg.MOUSEBUTTONDOWN:
-                    mouse_down = True
-                case pg.MOUSEBUTTONUP:
-                    mouse_down = False
+                case pg.KEYDOWN if e.key == K_s:
+                    print(f"[SAVED] {level_name}")
+                    save_map(level_name, tilemap)
                 case pg.QUIT:
                     exit()
                     quit()
-    
-        if mouse_down:
-            tile_pos = Vector2(mouse.get_pos()) / (TILE_SIZE * 2)
+
+        left, middle, right = mouse.get_pressed(3)
+        tile_pos = Vector2(mouse.get_pos()) / (TILE_SIZE * 2)
+        if middle:
+            tile = tilemap.get(int(tile_pos.x), int(tile_pos.y))
+            if tile is not None:
+                if tile is Tile:
+                    selected = tile.tile
+                else:
+                    selected = tile
+        if left or right:
             tilemap.extend_height(int(tile_pos.y) + 1)
             tilemap.extend_width(int(tile_pos.x) + 1)
-            tile_pos -= camera
-            tilemap.set(int(tile_pos.x), int(tile_pos.y), 1)
-            save_map(level_name, tilemap)
-
+            tilemap.set(int(tile_pos.x - camera.x), int(tile_pos.y - camera.y), selected if left else 0)
+        
         screen.fill("cyan")
         # Draw Start
         tilemap.draw(screen, camera)
