@@ -28,6 +28,10 @@ while True:
         camera.x = 0
     if camera.y < 0:
         camera.y = 0
+    if camera.x > tilemap.width * TILE_SIZE - screen.get_width():
+        camera.x = tilemap.width * TILE_SIZE - screen.get_width()
+    if camera.y > tilemap.height * TILE_SIZE - screen.get_height():
+        camera.y = tilemap.height * TILE_SIZE - screen.get_height()
 
     window.fill("black")
     screen.fill("cyan")
