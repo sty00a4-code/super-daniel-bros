@@ -1,7 +1,40 @@
 import pygame as pg
 from pygame import *
+from os import listdir
 from pickle import loads, dumps
 global CAMERA
+
+TILE_NAMES = [
+    None,
+    "dirt",
+    None,
+    "grass",
+    "stone",
+    "stone_slab",
+    "water_light",
+    "bread",
+]
+class TileData:
+    def __init__(self, solid = False):
+        self.solid = solid
+default = TileData()
+solid = TileData(solid = True)
+TILE_DATA = [
+    default,
+    solid,
+    default,
+    solid,
+    solid,
+    solid,
+    default,
+    default,
+]
+TILE_ASSETS = dict()
+for path in listdir("assets/tiles"):
+    if "." not in path:
+        continue
+    name = path.split(".")[0]
+    TILE_ASSETS[name] = pg.image.load(f"assets/tiles/{path}")
 
 TILE_SIZE = 16
 class Tile:
@@ -50,7 +83,7 @@ class TileMap:
             for y in range(self.height):
                 self.tiles[y].extend([0 for _ in range(self.width, width)])
     
-    def get(self, x: int, y: int) -> Tile|int|None:
+    def get(self, x: int, y: int) -> Tile|int:
         """Gives back tile
 
         Args:
@@ -61,10 +94,10 @@ class TileMap:
             Tile|int|None: tile ID or Tile with Data if any tile is there
         """
         if not (0 <= y < len(self.tiles)):
-            return None
+            return 0
         row = self.tiles[y]
         if not (0 <= x < len(row)):
-            return None
+            return 0
         return row[x]
     
     def get_rect(self, x: int, y: int) -> Rect:
@@ -109,19 +142,20 @@ class TileMap:
         self.tiles[y][x] = tile
         return True
     
-    def draw(self, surface: Surface, camera: Vector2):
+    def draw(self, surface: Surface, camera: Vector2, debug = False):
         start = camera / TILE_SIZE
         (width, height) = surface.get_size()
         end = start + Vector2(width, height) / TILE_SIZE
         for y in range(int(start.y), int(end.y) + 1):
             for x in range(int(start.x), int(end.x) + 1):
                 tile = self.get(x, y)
-                if tile is not None:
-                    pos = Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera
-                    if tile == 1:
-                        draw.rect(surface, Color(0, 0, 0), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
-                    elif tile == 2:
-                        draw.rect(surface, Color(0, 0, 255), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
+                pos = Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera
+                if tile == 2 and debug:
+                    draw.rect(surface, Color(0, 255, 0), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE), width=2)
+                elif TILE_NAMES[tile] is not None:
+                    img = TILE_ASSETS[TILE_NAMES[tile]]
+                    if img is not None:
+                        surface.blit(img, Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
 
 def load_map(name: str) -> TileMap:
     with open(f"level/{name}.pickle", "rb") as file:
@@ -156,6 +190,12 @@ if __name__ == "__main__":
         for e in event.get():
             # print(e)
             match e.type:
+                case pg.MOUSEWHEEL:
+                    selected -= e.y
+                    if selected < 0:
+                        selected = len(TILE_NAMES) - 1
+                    elif selected > len(TILE_NAMES) - 1:
+                        selected = 0
                 case pg.KEYDOWN if e.key == K_s:
                     print(f"[SAVED] {level_name}")
                     save_map(level_name, tilemap)
@@ -167,11 +207,10 @@ if __name__ == "__main__":
         tile_pos = Vector2(mouse.get_pos()) / (TILE_SIZE * 2)
         if middle:
             tile = tilemap.get(int(tile_pos.x), int(tile_pos.y))
-            if tile is not None:
-                if tile is Tile:
-                    selected = tile.tile
-                else:
-                    selected = tile
+            if tile is Tile:
+                selected = tile.tile
+            else:
+                selected = tile
         if left or right:
             tilemap.extend_height(int(tile_pos.y) + 1)
             tilemap.extend_width(int(tile_pos.x) + 1)
@@ -179,7 +218,12 @@ if __name__ == "__main__":
         
         screen.fill("cyan")
         # Draw Start
-        tilemap.draw(screen, camera)
+        tilemap.draw(screen, camera, debug=True)
+        name = TILE_NAMES[selected]
+        if name is not None:
+            img: Surface = TILE_ASSETS[name].copy()
+            img.set_alpha(255 / 2)
+            screen.blit(img, Rect(int(tile_pos.x) * TILE_SIZE, int(tile_pos.y) * TILE_SIZE, TILE_SIZE, TILE_SIZE))
         # Draw End
         window.blit(transform.scale(screen, window.get_size()), (0, 0))
         display.flip()
