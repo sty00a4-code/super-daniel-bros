@@ -146,8 +146,9 @@ class Player(Entity):
                 self.state = State.Glide
             else:
                 self.state = State.Jump
-    def draw(self, screen: Surface, camera: Vector2):
+    def draw(self, screen: Surface, camera: Vector2, debug = False):
         rect = Rect(self.rect.left - camera.x - TILE_SIZE / 2, self.rect.top - camera.y - TILE_SIZE, self.rect.w, self.rect.h)
         img = transform.flip(ANIMATIONS[self.state.value].cycle(), self.dir == -1, False)
         screen.blit(img, rect)
-        draw.rect(screen, Color(255, 255, 255, 255 // 2), self.rect, width=1)
+        if debug:
+            draw.rect(screen, Color(255, 255, 255, 255 // 2), self.rect, width=1)
