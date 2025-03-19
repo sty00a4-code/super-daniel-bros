@@ -4,6 +4,7 @@ from pygame import *
 from tilemap import *
 from enum import Enum
 from time import time as t
+from entities import Entity
 
 class Animation:
     """Animation class consisting of a list of sprites and an animation speed
@@ -84,7 +85,7 @@ class Input:
                 self.throw = True
             case pg.KEYUP if event.key == K_m:
                 self.throw = False
-class Player:
+class Player(Entity):
     """Main player class
     """
     def __init__(self, pos: Vector2):
@@ -99,7 +100,7 @@ class Player:
     def start(self, tilemap: TileMap):
         self.rect.x = tilemap.spawn[0] * TILE_SIZE
         self.rect.y = tilemap.spawn[1] * TILE_SIZE
-    def update(self, dt: float, input: Input, tilemap: TileMap):
+    def update(self, dt: float, tilemap: TileMap, input: Input):
         self.state = State.Idle
         self.air_time += dt
         if self.grounded:
@@ -145,137 +146,8 @@ class Player:
                 self.state = State.Glide
             else:
                 self.state = State.Jump
-    def is_grounded(self, tilemap: TileMap):
-        self.grounded = False
-        (cx, cy) = (self.rect.centerx, self.rect.bottom + 1)
-        c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-        tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-        if tile is Tile:
-            tile = tile.tile
-        if TILE_DATA[tile].solid:
-            self.grounded = True
-    def collide(self, tilemap: TileMap):
-        self.grounded = False
-        if self.rect.left < 0:
-            self.rect.left = 0
-            self.vel.x = 0
-        if self.rect.right > tilemap.width * TILE_SIZE:
-            self.rect.right = tilemap.width * TILE_SIZE
-            self.vel.x = 0
-        if self.rect.bottom > tilemap.height * TILE_SIZE:
-            self.rect.bottom = tilemap.height * TILE_SIZE
-            self.vel.y = 0
-        # bottom
-        if self.vel.y > 0:
-            (cx, cy) = (self.rect.centerx, self.rect.bottom)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-            if tile is Tile:
-                tile = tile.tile
-            if TILE_DATA[tile].solid:
-                if self.rect.colliderect(c):
-                    self.grounded = True
-                    self.rect.bottom = c.top
-                    self.vel.y = 0
-        # top
-        if self.vel.y < 0:
-            (cx, cy) = (self.rect.centerx, self.rect.top)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-            if tile is Tile:
-                tile = tile.tile
-            if TILE_DATA[tile].solid:
-                if self.rect.colliderect(c):
-                    self.rect.top = c.bottom
-                    self.vel.y = 0
-                    self.air_time = PLAYER_LEAP_TIME
-        # left
-        if self.vel.x < 0:
-            (cx, cy) = (self.rect.left, self.rect.centery)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-            if tile is Tile:
-                tile = tile.tile
-            if TILE_DATA[tile].solid:
-                if self.rect.colliderect(c):
-                    self.rect.left = c.right
-                    self.vel.x = 0
-        # right
-        if self.vel.x > 0:
-            (cx, cy) = (self.rect.right, self.rect.centery)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-            if tile is Tile:
-                tile = tile.tile
-            if TILE_DATA[tile].solid:
-                if self.rect.colliderect(c):
-                    self.rect.right = c.left
-                    self.vel.x = 0
-        # bottom-left
-        if self.vel.y > 0 and self.vel.x < 0:
-            (cx, cy) = (self.rect.left, self.rect.bottom)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-            if tile is Tile:
-                tile = tile.tile
-            if TILE_DATA[tile].solid:
-                if self.vel.y > 0:
-                    if self.rect.colliderect(c):
-                        self.rect.bottom = c.top
-                        self.vel.y = 0
-                else:
-                    if self.rect.colliderect(c):
-                        self.rect.left = c.right
-                        self.vel.x = 0
-        # bottom-right
-        if self.vel.y > 0 and self.vel.x > 0:
-            (cx, cy) = (self.rect.right, self.rect.bottom)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-            if tile is Tile:
-                tile = tile.tile
-            if TILE_DATA[tile].solid:
-                if self.vel.y > 0:
-                    if self.rect.colliderect(c):
-                        self.rect.bottom = c.top
-                        self.vel.y = 0
-                else:
-                    if self.rect.colliderect(c):
-                        self.rect.right = c.left
-                        self.vel.x = 0
-        # top-left
-        if self.vel.y < 0 and self.vel.x < 0:
-            (cx, cy) = (self.rect.left, self.rect.top)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-            if tile is Tile:
-                tile = tile.tile
-            if TILE_DATA[tile].solid:
-                if self.vel.y > 0:
-                    if self.rect.colliderect(c):
-                        self.rect.top = c.bottom
-                        self.vel.y = 0
-                else:
-                    if self.rect.colliderect(c):
-                        self.rect.left = c.right
-                        self.vel.x = 0
-        # top-right
-        if self.vel.y < 0 and self.vel.x > 0:
-            (cx, cy) = (self.rect.right, self.rect.top)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
-            if tile is Tile:
-                tile = tile.tile
-            if TILE_DATA[tile].solid:
-                if self.vel.y > 0:
-                    if self.rect.colliderect(c):
-                        self.rect.top = c.bottom
-                        self.vel.y = 0
-                else:
-                    if self.rect.colliderect(c):
-                        self.rect.right = c.left
-                        self.vel.x = 0
     def draw(self, screen: Surface, camera: Vector2):
         rect = Rect(self.rect.left - camera.x - TILE_SIZE / 2, self.rect.top - camera.y - TILE_SIZE, self.rect.w, self.rect.h)
         img = transform.flip(ANIMATIONS[self.state.value].cycle(), self.dir == -1, False)
         screen.blit(img, rect)
+        draw.rect(screen, Color(255, 255, 255, 255 // 2), self.rect, width=1)
