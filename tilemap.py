@@ -1,3 +1,4 @@
+from settings import *
 import pygame as pg
 from pygame import *
 from os import listdir
@@ -63,6 +64,7 @@ class Tile:
 class TileMap:
     def __init__(self, tiles: list[list[Tile|int]], width, height):
         self.tiles = []
+        self.spawn = (0, 0)
         for y in range(height):
             self.tiles.append([])
             for x in range(width):
@@ -157,6 +159,8 @@ class TileMap:
                     img = TILE_ASSETS[TILE_NAMES[tile]]
                     if img is not None:
                         surface.blit(img, Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
+        if debug:
+            draw.rect(surface, Color(0, 0, 255), Rect(self.spawn[0] * TILE_SIZE - camera.x, self.spawn[1] * TILE_SIZE - camera.y, TILE_SIZE, TILE_SIZE), width=2)
 
 def load_map(name: str) -> TileMap:
     with open(f"level/{name}.pickle", "rb") as file:
@@ -187,25 +191,47 @@ if __name__ == "__main__":
     
     selected = 1
     camera = Vector2(0, 0)
+    move = Vector2(0, 0)
     while True:
+        dt = clock.tick(FPS)/1000
+        left, middle, right = mouse.get_pressed(3)
+        tile_pos = (Vector2(mouse.get_pos()) + camera * 2) // (TILE_SIZE * 2)
         for e in event.get():
             # print(e)
-            match e.type:
-                case pg.MOUSEWHEEL:
-                    selected -= e.y
-                    if selected < 0:
-                        selected = len(TILE_NAMES) - 1
-                    elif selected > len(TILE_NAMES) - 1:
-                        selected = 0
-                case pg.KEYDOWN if e.key == K_s:
-                    print(f"[SAVED] {level_name}")
-                    save_map(level_name, tilemap)
-                case pg.QUIT:
-                    exit()
-                    quit()
-
-        left, middle, right = mouse.get_pressed(3)
-        tile_pos = Vector2(mouse.get_pos()) / (TILE_SIZE * 2)
+            if e.type == MOUSEWHEEL:
+                selected -= e.y
+                if selected < 0:
+                    selected = len(TILE_NAMES) - 1
+                elif selected > len(TILE_NAMES) - 1:
+                    selected = 0
+            elif e.type == KEYDOWN:
+                if e.key == K_s:
+                    if (e.mod & pg.KMOD_LCTRL):
+                        print(f"[SAVED] {level_name}")
+                        save_map(level_name, tilemap)
+                    else:
+                        move.y = 1
+                elif e.key == K_w:
+                    move.y = -1
+                elif e.key == K_a:
+                    move.x = -1
+                elif e.key == K_d:
+                    move.x = 1
+                elif e.key == K_e:
+                    tilemap.spawn = (tile_pos.x, tile_pos.y)
+            elif e.type == KEYUP:
+                if e.key == K_s and move.y > 0:
+                    move.y = 0
+                elif e.key == K_w and move.y < 0:
+                    move.y = 0
+                elif e.key == K_a and move.x < 0:
+                    move.x = 0
+                elif e.key == K_d and move.x > 0:
+                    move.x = 0
+            elif e.type == QUIT:
+                exit()
+                quit()
+        
         if middle:
             tile = tilemap.get(int(tile_pos.x), int(tile_pos.y))
             if tile is Tile:
@@ -215,7 +241,11 @@ if __name__ == "__main__":
         if left or right:
             tilemap.extend_height(int(tile_pos.y) + 1)
             tilemap.extend_width(int(tile_pos.x) + 1)
-            tilemap.set(int(tile_pos.x - camera.x), int(tile_pos.y - camera.y), selected if left else 0)
+            tilemap.set(int(tile_pos.x), int(tile_pos.y), selected if left else 0)
+        
+        camera += move * 500 * dt
+        camera.x = int(camera.x)
+        camera.y = int(camera.y)
         
         screen.fill("cyan")
         # Draw Start
@@ -224,7 +254,8 @@ if __name__ == "__main__":
         if name is not None:
             img: Surface = TILE_ASSETS[name].copy()
             img.set_alpha(255 / 2)
-            screen.blit(img, Rect(int(tile_pos.x) * TILE_SIZE, int(tile_pos.y) * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+            screen.blit(img, Rect(int(tile_pos.x) * TILE_SIZE - camera.x, int(tile_pos.y) * TILE_SIZE - camera.y, TILE_SIZE, TILE_SIZE))
+        draw.rect(screen, Color(255, 255, 255, 255 // 2), Rect(0 - camera.x, 0 - camera.y, tilemap.width * TILE_SIZE, tilemap.height * TILE_SIZE), width=2)
         # Draw End
         window.blit(transform.scale(screen, window.get_size()), (0, 0))
         display.flip()

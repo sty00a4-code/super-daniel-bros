@@ -13,6 +13,7 @@ camera = Vector2(0, 0)
 input = Input()
 player = Player(Vector2(0, 0))
 tilemap = load_map("test")
+player.start(tilemap)
 
 while True:
     dt = clock.tick(FPS)/1000

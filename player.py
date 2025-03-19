@@ -28,8 +28,13 @@ ANIMATIONS["walk"] = Animation([
     pg.image.load("assets/duck/walk_1.png"),
     pg.image.load("assets/duck/idle.png")
 ], 10)
-ANIMATIONS["jump"] = Animation([pg.image.load("assets/duck/idle.png")])
-ANIMATIONS["glide"] = Animation([pg.image.load("assets/duck/idle.png")])
+ANIMATIONS["jump"] = Animation([pg.image.load("assets/duck/jump.png")])
+ANIMATIONS["glide"] = Animation([
+    pg.image.load("assets/duck/glide_1.png"),
+    pg.image.load("assets/duck/glide_2.png"),
+    pg.image.load("assets/duck/glide_3.png"),
+    pg.image.load("assets/duck/glide_2.png"),
+], 10)
 ANIMATIONS["attack"] = Animation([pg.image.load("assets/duck/idle.png")])
 ANIMATIONS["throw"] = Animation([pg.image.load("assets/duck/idle.png")])
 
@@ -83,6 +88,7 @@ class Player:
     """Main player class
     """
     def __init__(self, pos: Vector2):
+        # also has position
         self.rect = Rect(0, 0, TILE_SIZE, TILE_SIZE)
         self.rect.center = (pos.x, pos.y)
         self.vel = Vector2(0, 0)
@@ -90,6 +96,9 @@ class Player:
         self.grounded = False
         self.air_time = 0
         self.dir = 1
+    def start(self, tilemap: TileMap):
+        self.rect.x = tilemap.spawn[0] * TILE_SIZE
+        self.rect.y = tilemap.spawn[1] * TILE_SIZE
     def update(self, dt: float, input: Input, tilemap: TileMap):
         self.state = State.Idle
         self.air_time += dt
@@ -118,6 +127,9 @@ class Player:
             self.vel.x = -PLAYER_MAX_VEL
         
         self.vel.y += GRAVITY
+        
+        if input.jump and self.vel.y > PLAYER_GLIDE_VEL:
+            self.vel.y = PLAYER_GLIDE_VEL
         
         if input.jump:
             if self.air_time < PLAYER_LEAP_TIME:
