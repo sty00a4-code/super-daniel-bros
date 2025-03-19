@@ -64,27 +64,15 @@ class Input:
         self.attack = False
         self.throw = False
     def event(self, event: event.Event):
-        match event.type:
-            case pg.KEYDOWN if event.key == K_a:
-                self.left = True
-            case pg.KEYUP if event.key == K_a:
-                self.left = False
-            case pg.KEYDOWN if event.key == K_d:
-                self.right = True
-            case pg.KEYUP if event.key == K_d:
-                self.right = False
-            case pg.KEYDOWN if event.key == K_w:
-                self.jump = True
-            case pg.KEYUP if event.key == K_w:
-                self.jump = False
-            case pg.KEYDOWN if event.key == K_n:
-                self.attack = True
-            case pg.KEYUP if event.key == K_n:
-                self.attack = False
-            case pg.KEYDOWN if event.key == K_m:
-                self.throw = True
-            case pg.KEYUP if event.key == K_m:
-                self.throw = False
+        if event.type in [KEYDOWN, KEYUP]:
+            if event.key == K_a:
+                self.left = event.type == KEYDOWN
+            elif event.key == K_d:
+                self.right = event.type == KEYDOWN
+            elif event.key == K_w:
+                self.jump = event.type == KEYDOWN
+            elif event.key == K_SPACE:
+                self.throw = event.type == KEYDOWN
 class Player(Entity):
     """Main player class
     """

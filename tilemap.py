@@ -3,6 +3,8 @@ import pygame as pg
 from pygame import *
 from os import listdir
 from pickle import loads, dumps
+from math import sin
+from time import time_ns as t
 global CAMERA
 
 TILE_NAMES = [
@@ -14,21 +16,34 @@ TILE_NAMES = [
     "stone_slab",
     "water_light",
     "bread",
+    "cherries",
+    "raspberry",
+    "pillar",
+    "pillar_bottom",
+    "pillar_top",
 ]
 class TileData:
-    def __init__(self, solid = False):
+    def __init__(self, solid = False, item: str = None, action: str = None):
         self.solid = solid
+        self.item = item
+        self.action = action
 default = TileData()
 solid = TileData(solid = True)
+platform = TileData(solid = "platform")
 TILE_DATA = [
     default,
     solid,
-    default,
+    TileData(action="goal"),
     solid,
     solid,
     solid,
     default,
+    TileData(item="bread"),
+    TileData(item="cherries"),
+    TileData(item="raspberry"),
     default,
+    default,
+    platform,
 ]
 TILE_ASSETS = dict()
 for path in listdir("assets/tiles"):
@@ -64,10 +79,13 @@ class Tile:
 class TileMap:
     def __init__(self, tiles: list[list[Tile|int]], width, height):
         self.tiles = []
+        self.background_tiles = []
         self.spawn = (0, 0)
         for y in range(height):
+            self.background_tiles.append([])
             self.tiles.append([])
             for x in range(width):
+                self.background_tiles[y].append(0)
                 if len(tiles) > y:
                     if len(tiles[y]) > x:
                         self.tiles[y].append(tiles[y][x])
@@ -152,13 +170,18 @@ class TileMap:
         for y in range(int(start.y), int(end.y) + 1):
             for x in range(int(start.x), int(end.x) + 1):
                 tile = self.get(x, y)
+                if tile is Tile:
+                    tile = tile.tile
                 pos = Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera
                 if tile == 2 and debug:
                     draw.rect(surface, Color(0, 255, 0), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE), width=2)
                 elif TILE_NAMES[tile] is not None:
                     img = TILE_ASSETS[TILE_NAMES[tile]]
                     if img is not None:
-                        surface.blit(img, Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
+                        if TILE_DATA[tile].item is not None:
+                            surface.blit(img, Rect(pos.x, pos.y + sin(t() / 200_000_000 + x * y) * 2, TILE_SIZE, TILE_SIZE))
+                        else:
+                            surface.blit(img, Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
         if debug:
             draw.rect(surface, Color(0, 0, 255), Rect(self.spawn[0] * TILE_SIZE - camera.x, self.spawn[1] * TILE_SIZE - camera.y, TILE_SIZE, TILE_SIZE), width=2)
 
