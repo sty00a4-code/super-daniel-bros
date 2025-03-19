@@ -1,3 +1,4 @@
+ENTITIES = []
 from settings import *
 from pygame import *
 from tilemap import *
@@ -15,19 +16,17 @@ input = Input()
 player = Player(Vector2(0, 0))
 tilemap = load_map("test")
 player.start(tilemap)
-ENTITIES = [
-    Entity(Rect(100, 0, TILE_SIZE, TILE_SIZE))
-]
 
 while True:
     dt = clock.tick(FPS)/1000
+    input.mouse(camera)
     for e in event.get():
         input.event(e)
         if e.type == QUIT:
             exit()
             quit()
 
-    player.update(dt, tilemap, input)
+    player.update(dt, tilemap, input, ENTITIES)
     for entity in ENTITIES:
         entity.update(dt, tilemap, ENTITIES, player)
 
@@ -49,7 +48,7 @@ while True:
     tilemap.draw(screen, camera)
     for entity in ENTITIES:
         entity.draw(screen, camera)
-    player.draw(screen, camera)
+    player.draw(screen, camera, dt)
     # Draw End
     window.blit(transform.scale(screen, window.get_size()), (0, 0))
     display.flip()

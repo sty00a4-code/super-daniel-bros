@@ -1,0 +1,28 @@
+from settings import *
+import pygame as pg
+from pygame import *
+from tilemap import *
+from entities import Entity
+
+EGG_IMG = image.load("assets/entities/egg.png")
+
+class Egg(Entity):
+    def __init__(self):
+        super().__init__(Rect(0, 0, TILE_SIZE / 2, TILE_SIZE / 2))
+        self.hit = False
+    def update(self, dt, tilemap, entities, player):
+        super().update(dt, tilemap, entities, player)
+        if self.hit:
+            entities.remove(self)
+    def collide(self, tilemap):
+        (cx, cy) = (self.rect.centerx, self.rect.centery)
+        c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+        tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+        if tile is Tile:
+            tile = tile.tile
+        if TILE_DATA[tile].solid:
+            if self.rect.colliderect(c):
+                self.hit = True
+    def draw(self, screen, camera):
+        rect = Rect(self.rect.x - TILE_SIZE / 1.5 - camera.x, self.rect.y - TILE_SIZE * 1.25 - camera.y, TILE_SIZE, TILE_SIZE)
+        screen.blit(EGG_IMG, rect)

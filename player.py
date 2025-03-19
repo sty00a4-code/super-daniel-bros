@@ -5,6 +5,7 @@ from tilemap import *
 from enum import Enum
 from time import time as t
 from entities import Entity
+from egg import *
 
 class Animation:
     """Animation class consisting of a list of sprites and an animation speed
@@ -12,7 +13,9 @@ class Animation:
     def __init__(self, sprites: list[Surface], speed: float = 1):
         self.sprites = sprites
         self.speed = speed
-    def cycle(self) -> Surface:
+        self.time = 0
+    def cycle(self, dt) -> Surface:
+        self.time += dt
         """Returns the current frame of the animation dependent on the time
         
         Returns:
@@ -20,7 +23,7 @@ class Animation:
         """
         if len(self.sprites) == 1:
             return self.sprites[0]
-        return self.sprites[int(t() * self.speed % len(self.sprites))]
+        return self.sprites[int(self.time * self.speed % len(self.sprites))]
 
 # player animations
 ANIMATIONS = dict()
@@ -28,16 +31,16 @@ ANIMATIONS["idle"] = Animation([pg.image.load("assets/duck/idle.png")])
 ANIMATIONS["walk"] = Animation([
     pg.image.load("assets/duck/walk_1.png"),
     pg.image.load("assets/duck/idle.png")
-], 10)
+], 20)
 ANIMATIONS["jump"] = Animation([pg.image.load("assets/duck/jump.png")])
 ANIMATIONS["glide"] = Animation([
     pg.image.load("assets/duck/glide_1.png"),
     pg.image.load("assets/duck/glide_2.png"),
     pg.image.load("assets/duck/glide_3.png"),
     pg.image.load("assets/duck/glide_2.png"),
-], 10)
+], 20)
 ANIMATIONS["attack"] = Animation([pg.image.load("assets/duck/idle.png")])
-ANIMATIONS["throw"] = Animation([pg.image.load("assets/duck/idle.png")])
+ANIMATIONS["throw"] = Animation([pg.image.load("assets/duck/throw.png")])
 
 
 class State(Enum):
@@ -63,6 +66,11 @@ class Input:
         self.jump = False
         self.attack = False
         self.throw = False
+        self.cursor = Vector2(0, 0)
+    def mouse(self, camera: Vector2):
+        mouse_pos = mouse.get_pos()
+        self.cursor.x = mouse_pos[0] / 2 - camera.x
+        self.cursor.y = mouse_pos[1] / 2 - camera.y
     def event(self, event: event.Event):
         if event.type in [KEYDOWN, KEYUP]:
             if event.key == K_a:
@@ -85,24 +93,58 @@ class Player(Entity):
         self.grounded = False
         self.air_time = 0
         self.dir = 1
+        self.throw_time = 0
+        self.charge = 0
     def start(self, tilemap: TileMap):
         self.rect.x = tilemap.spawn[0] * TILE_SIZE
         self.rect.y = tilemap.spawn[1] * TILE_SIZE
-    def update(self, dt: float, tilemap: TileMap, input: Input):
-        self.state = State.Idle
+    def update(self, dt: float, tilemap: TileMap, input: Input, entities: list[Entity]):
         self.air_time += dt
+        self.throw_time += dt
         if self.grounded:
             self.air_time = 0
+            if self.state in [State.Jump, State.Glide]:
+                self.state = State.Idle
         acc = 0
-        if input.right:
-            self.dir = 1
-            acc += 1
-            self.state = State.Walk
-        if input.left:
-            self.dir = -1
-            acc -= 1
-            self.state = State.Walk
-        self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
+        if self.state == State.Throw:
+            if input.cursor.x > self.rect.centerx:
+                self.dir = 1
+            elif input.cursor.x < self.rect.centerx:
+                self.dir = -1
+            self.charge += dt
+            if not input.throw:
+                self.throw_egg(input, entities)
+                self.state = State.Idle
+            if input.right:
+                self.dir = 1
+            if input.left:
+                self.dir = -1
+        elif self.state in [State.Idle, State.Walk]:
+            if input.right:
+                self.dir = 1
+                acc += 1
+                self.state = State.Walk
+            elif input.left:
+                self.dir = -1
+                acc -= 1
+                self.state = State.Walk
+            else:
+                self.state = State.Idle
+            self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
+        elif self.state in [State.Jump, State.Glide]:
+            if input.right:
+                self.dir = 1
+                acc += 1
+            if input.left:
+                self.dir = -1
+                acc -= 1
+            self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
+        
+        if input.jump and self.vel.y > PLAYER_GLIDE_VEL:
+            self.vel.y = PLAYER_GLIDE_VEL
+        if input.jump:
+            if self.air_time < PLAYER_LEAP_TIME:
+                self.vel.y = -PLAYER_JUMP
         if acc == 0 and self.grounded:
             if self.vel.x > PLAYER_FRICTION:
                 self.vel.x -= PLAYER_FRICTION
@@ -116,14 +158,6 @@ class Player(Entity):
             self.vel.x = -PLAYER_MAX_VEL
         
         self.vel.y += GRAVITY
-        
-        if input.jump and self.vel.y > PLAYER_GLIDE_VEL:
-            self.vel.y = PLAYER_GLIDE_VEL
-        
-        if input.jump:
-            if self.air_time < PLAYER_LEAP_TIME:
-                self.vel.y = -PLAYER_JUMP
-        
         self.rect.x += self.vel.x * dt
         self.rect.y += self.vel.y * dt
         
@@ -134,9 +168,26 @@ class Player(Entity):
                 self.state = State.Glide
             else:
                 self.state = State.Jump
-    def draw(self, screen: Surface, camera: Vector2, debug = False):
+                
+        if self.state in [State.Idle, State.Walk] and input.throw:
+            if self.throw_time > PLAYER_THROW_DELAY:
+                self.state = State.Throw
+            else:
+                self.charge = 0
+    def throw_egg(self, input: Input, entities: list[Entity]):
+        egg = Egg()
+        egg.rect.centerx = self.rect.left if self.dir > 0 else self.rect.right
+        egg.rect.centery = self.rect.top
+        pos = Vector2(self.rect.centerx, self.rect.centery)
+        dir = (input.cursor - pos).normalize()
+        dir.y *= 1.5
+        egg.vel += dir * (min(self.charge * 200, 20) + 20) * 25
+        entities.append(egg)
+        self.throw_time = 0
+        self.charge = 0
+    def draw(self, screen: Surface, camera: Vector2, dt: float, debug = False):
         rect = Rect(self.rect.left - camera.x - TILE_SIZE / 2, self.rect.top - camera.y - TILE_SIZE, self.rect.w, self.rect.h)
-        img = transform.flip(ANIMATIONS[self.state.value].cycle(), self.dir == -1, False)
+        img = transform.flip(ANIMATIONS[self.state.value].cycle(dt), self.dir == -1, False)
         screen.blit(img, rect)
         if debug:
-            draw.rect(screen, Color(255, 255, 255, 255 // 2), self.rect, width=1)
+            draw.rect(screen, Color(255, 255, 255, 255 // 2), rect, width=1)
