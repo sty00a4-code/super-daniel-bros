@@ -6,18 +6,22 @@ from entities import Entity
 
 EGG_IMG = image.load("assets/entities/egg.png")
 
+
 class Egg(Entity):
     def __init__(self):
         super().__init__(Rect(0, 0, TILE_SIZE / 2, TILE_SIZE / 2))
         self.hit = False
+
     def update(self, dt, game):
         super().update(dt, game)
         # delete if hit something
         if self.hit:
             self.destroy(game)
             game.entities.remove(self)
+
     def destroy(self, game):
         pass
+
     def collide(self, game):
         (cx, cy) = (self.rect.centerx, self.rect.centery)
         c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
@@ -27,7 +31,13 @@ class Egg(Entity):
         if TILE_DATA[tile].solid:
             if self.rect.colliderect(c):
                 self.hit = True
+
     def draw(self, screen, camera):
-        rect = Rect(self.rect.x - TILE_SIZE / 4 - camera.x, self.rect.y - TILE_SIZE / 4 - camera.y, TILE_SIZE, TILE_SIZE)
+        rect = Rect(
+            self.rect.x - TILE_SIZE / 4 - camera.x,
+            self.rect.y - TILE_SIZE / 4 - camera.y,
+            TILE_SIZE,
+            TILE_SIZE,
+        )
         screen.blit(EGG_IMG, rect)
         # draw.rect(screen, "red", self.rect, 1)

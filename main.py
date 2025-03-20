@@ -11,6 +11,7 @@ screen = Surface((1920 / 4, 1080 / 4))
 display.set_caption("Super Daniel Bros")
 clock = time.Clock()
 
+
 class Game:
     def __init__(self):
         self.camera = Vector2(0, 0)
@@ -19,11 +20,13 @@ class Game:
         self.tilemap = load_map("test")
         self.player.start(self.tilemap)
         self.entities = []
+
     def draw(self, screen):
         self.tilemap.draw(screen, self.camera)
         for entity in self.entities:
             entity.draw(screen, self.camera)
         self.player.draw(screen, self.camera)
+
     def update(self, dt):
         # update input manager
         self.input.mouse(self.camera)
@@ -50,10 +53,11 @@ class Game:
         self.camera.x = int(self.camera.x)
         self.camera.y = int(self.camera.y)
 
+
 game = Game()
 
 while True:
-    dt = min(clock.tick(FPS)/1000, 1) # time since last frame
+    dt = min(clock.tick(FPS) / 1000, 1)  # time since last frame
     game.update(dt)
 
     window.fill("black")
