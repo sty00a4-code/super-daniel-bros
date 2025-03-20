@@ -2,7 +2,7 @@ from settings import *
 import pygame as pg
 from pygame import *
 from tilemap import *
-from entities import Entity
+from entities.entity import Entity
 
 EGG_IMG = image.load("assets/entities/egg.png")
 

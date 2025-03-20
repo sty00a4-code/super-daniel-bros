@@ -1,7 +1,7 @@
 from settings import *
 from pygame import *
 from tilemap import *
-from egg import *
+from entities.egg import *
 
 """ANIMATION SYSTEM
 
