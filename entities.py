@@ -9,37 +9,37 @@ class Entity:
         self.vel = Vector2(0, 0)
         self.grounded = False
         self.dir = 1
-    def update(self, dt: float, tilemap: TileMap, entities: list, player):
+    def update(self, dt: float, game):
         self.vel.y += GRAVITY
         if self.grounded:
             self.vel.x *= 0.9
         self.rect.x += self.vel.x * dt
         self.rect.y += self.vel.y * dt
-        self.collide(tilemap)
-        self.is_grounded(tilemap)
-    def is_grounded(self, tilemap: TileMap):
+        self.collide(game)
+        self.is_grounded(game)
+    def is_grounded(self, game):
         self.grounded = False
         (cx, cy) = (self.rect.centerx, self.rect.bottom + 1)
-        tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+        tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
         if tile is Tile:
             tile = tile.tile
         if TILE_DATA[tile].solid:
             self.grounded = True
-    def collide(self, tilemap: TileMap):
+    def collide(self, game):
         if self.rect.left < 0:
             self.rect.left = 0
             self.vel.x = 0
-        if self.rect.right > tilemap.width * TILE_SIZE:
-            self.rect.right = tilemap.width * TILE_SIZE
+        if self.rect.right > game.tilemap.width * TILE_SIZE:
+            self.rect.right = game.tilemap.width * TILE_SIZE
             self.vel.x = 0
-        if self.rect.bottom > tilemap.height * TILE_SIZE:
-            self.rect.bottom = tilemap.height * TILE_SIZE
+        if self.rect.bottom > game.tilemap.height * TILE_SIZE:
+            self.rect.bottom = game.tilemap.height * TILE_SIZE
             self.vel.y = 0
         # bottom
         if self.vel.y > 0:
             (cx, cy) = (self.rect.centerx, self.rect.bottom)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+            c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+            tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
             if tile is Tile:
                 tile = tile.tile
             if TILE_DATA[tile].solid:
@@ -50,8 +50,8 @@ class Entity:
         # top
         if self.vel.y < 0:
             (cx, cy) = (self.rect.centerx, self.rect.top)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+            c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+            tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
             if tile is Tile:
                 tile = tile.tile
             if TILE_DATA[tile].solid:
@@ -62,8 +62,8 @@ class Entity:
         # left
         if self.vel.x < 0:
             (cx, cy) = (self.rect.left, self.rect.centery)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+            c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+            tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
             if tile is Tile:
                 tile = tile.tile
             if TILE_DATA[tile].solid:
@@ -73,8 +73,8 @@ class Entity:
         # right
         if self.vel.x > 0:
             (cx, cy) = (self.rect.right, self.rect.centery)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+            c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+            tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
             if tile is Tile:
                 tile = tile.tile
             if TILE_DATA[tile].solid:
@@ -84,8 +84,8 @@ class Entity:
         # bottom-left
         if self.vel.y > 0 and self.vel.x < 0:
             (cx, cy) = (self.rect.left, self.rect.bottom)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+            c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+            tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
             if tile is Tile:
                 tile = tile.tile
             if TILE_DATA[tile].solid:
@@ -100,8 +100,8 @@ class Entity:
         # bottom-right
         if self.vel.y > 0 and self.vel.x > 0:
             (cx, cy) = (self.rect.right, self.rect.bottom)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+            c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+            tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
             if tile is Tile:
                 tile = tile.tile
             if TILE_DATA[tile].solid:
@@ -116,8 +116,8 @@ class Entity:
         # top-left
         if self.vel.y < 0 and self.vel.x < 0:
             (cx, cy) = (self.rect.left, self.rect.top)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+            c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+            tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
             if tile is Tile:
                 tile = tile.tile
             if TILE_DATA[tile].solid:
@@ -132,8 +132,8 @@ class Entity:
         # top-right
         if self.vel.y < 0 and self.vel.x > 0:
             (cx, cy) = (self.rect.right, self.rect.top)
-            c = tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
-            tile = tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+            c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+            tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
             if tile is Tile:
                 tile = tile.tile
             if TILE_DATA[tile].solid:
