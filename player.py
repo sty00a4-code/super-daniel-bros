@@ -154,8 +154,8 @@ class Player(Entity):
         # collectibles
         current_tile_pos = game.tilemap.real_to_tile(self.rect.centerx, self.rect.centery)
         current_tile = game.tilemap.get(current_tile_pos[0], current_tile_pos[1])
-        if TILE_DATA[current_tile].collectible and TILE_DATA[current_tile].item:
-            key = TILE_DATA[current_tile].item
+        if TILE_DATA[current_tile].collectible:
+            key = TILE_DATA[current_tile].name
             if key in self.score:
                 self.score[key] += 1
             else:

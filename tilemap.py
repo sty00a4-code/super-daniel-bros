@@ -7,47 +7,36 @@ from math import sin
 from time import time_ns as t
 global CAMERA
 
-# names for tile ids
-TILE_NAMES = [
-    None,
-    "dirt",
-    None,
-    "grass",
-    "stone",
-    "stone_slab",
-    "water_light",
-    "bread",
-    "cherries",
-    "raspberry",
-    "pillar",
-    "pillar_bottom",
-    "pillar_top",
-]
 # special tile data
 class TileData:
-    def __init__(self, solid = False, item: str = None, action: str = None, collectible = False):
+    def __init__(
+            self,
+            name: str = None,
+            solid = False,
+            action: str = None,
+            collectible = False,
+        ):
+        self.name = name
         self.solid = solid
-        self.item = item
         self.action = action
         self.collectible = collectible
 default = TileData() # no data
-solid = TileData(solid = True) # solid tile
-platform = TileData(solid = "platform") # one way platform
 # tile data for every tile id
 TILE_DATA = [
     default,
-    solid,
+    TileData(name="dirt", solid=True),
     TileData(action="goal"),
-    solid,
-    solid,
-    solid,
-    default,
-    TileData(item="bread", collectible = True),
-    TileData(item="cherries", collectible = True),
-    TileData(item="raspberry", collectible = True),
-    default,
-    default,
-    platform,
+    TileData(name="grass", solid=True),
+    TileData(name="stone", solid=True),
+    TileData(name="stone_slab", solid=True),
+    TileData(name="water_light"),
+    TileData(name="bread", collectible = True),
+    TileData(name="cherries", collectible = True),
+    TileData(name="raspberry", collectible = True),
+    TileData(name="pillar"),
+    TileData(name="pillar_bottom"),
+    TileData(name="pillar_top"),
+    TileData(name="marble", solid=True),
 ]
 # load tile sprites
 TILE_ASSETS = dict()
@@ -183,11 +172,11 @@ class TileMap:
                 pos = Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera # position relative to the camera
                 if tile == 2 and debug: # goal tile
                     draw.rect(surface, Color(0, 255, 0), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE), width=2)
-                elif TILE_NAMES[tile] is not None: # tile exists
-                    img = TILE_ASSETS[TILE_NAMES[tile]] # get image
+                elif TILE_DATA[tile].name is not None: # tile exists
+                    img = TILE_ASSETS[TILE_DATA[tile].name] # get image
                     if img is not None:
                         # item tiles move up and down
-                        if TILE_DATA[tile].item is not None:
+                        if TILE_DATA[tile].collectible:
                             surface.blit(img, Rect(pos.x, pos.y + sin(t() / 200_000_000 + x * y) * 2, TILE_SIZE, TILE_SIZE))
                         else:
                             surface.blit(img, Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE))
@@ -233,8 +222,8 @@ if __name__ == "__main__":
             if e.type == MOUSEWHEEL:
                 selected -= e.y
                 if selected < 0:
-                    selected = len(TILE_NAMES) - 1
-                elif selected > len(TILE_NAMES) - 1:
+                    selected = len(TILE_DATA) - 1
+                elif selected > len(TILE_DATA) - 1:
                     selected = 0
             elif e.type == KEYDOWN:
                 if e.key == K_s:
@@ -282,7 +271,7 @@ if __name__ == "__main__":
         screen.fill("cyan")
         # Draw Start
         tilemap.draw(screen, camera, debug=True)
-        name = TILE_NAMES[selected]
+        name = TILE_DATA[selected].name
         if name is not None:
             img: Surface = TILE_ASSETS[name].copy()
             img.set_alpha(255 / 2)
