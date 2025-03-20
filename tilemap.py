@@ -25,14 +25,13 @@ TILE_NAMES = [
 ]
 # special tile data
 class TileData:
-    def __init__(self, solid = False, item: str = None, action: str = None):
+    def __init__(self, solid = False, item: str = None, action: str = None, collectible = False):
         self.solid = solid
         self.item = item
         self.action = action
         self.collectible = collectible
 default = TileData() # no data
 solid = TileData(solid = True) # solid tile
-collectible = TileData(collectible = False)
 platform = TileData(solid = "platform") # one way platform
 # tile data for every tile id
 TILE_DATA = [

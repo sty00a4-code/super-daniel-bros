@@ -64,12 +64,11 @@ class Player(Entity):
         self.rect.x = tilemap.spawn[0] * TILE_SIZE
         self.rect.y = tilemap.spawn[1] * TILE_SIZE
     def update(self, dt: float, game):
-        last_state = self.state
+        last_state = self.state # remember state
         self.air_time += dt
         self.throw_time += dt
         
-        current_tile_pos = game.tilemap.real_to_tile(self.rect.centerx, self.rect.centery)
-        current_tile = game.tilemap.get(current_tile_pos[0], current_tile_pos[1])
+        self.animations.update(dt)
         
         if self.grounded:
             # not in air anymore
@@ -152,6 +151,9 @@ class Player(Entity):
                 self.state = State.Throw
             else:
                 self.charge = 0
+        # collectibles
+        current_tile_pos = game.tilemap.real_to_tile(self.rect.centerx, self.rect.centery)
+        current_tile = game.tilemap.get(current_tile_pos[0], current_tile_pos[1])
         if TILE_DATA[current_tile].collectible and TILE_DATA[current_tile].item:
             key = TILE_DATA[current_tile].item
             if key in self.score:
