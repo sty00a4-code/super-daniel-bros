@@ -3,14 +3,16 @@ import pygame as pg
 from pygame import *
 from tilemap import *
 
+
 class Entity:
     def __init__(self, rect: Rect):
         self.rect = rect
         self.vel = Vector2(0, 0)
         self.grounded = False
         self.dir = 1
+
     def update(self, dt: float, game):
-        self.vel.y += GRAVITY # apply gravity
+        self.vel.y += GRAVITY  # apply gravity
         # apply friction
         if self.grounded:
             self.vel.x *= 0.9
@@ -19,6 +21,7 @@ class Entity:
         self.rect.y += self.vel.y * dt
         self.collide(game)
         self.is_grounded(game)
+
     def is_grounded(self, game):
         self.grounded = False
         (cx, cy) = (self.rect.centerx, self.rect.bottom + 1)
@@ -27,6 +30,7 @@ class Entity:
             tile = tile.tile
         if TILE_DATA[tile].solid:
             self.grounded = True
+
     def collide(self, game):
         if self.rect.left < 0:
             self.rect.left = 0
@@ -147,6 +151,12 @@ class Entity:
                     if self.rect.colliderect(c):
                         self.rect.right = c.left
                         self.vel.x = 0
+
     def draw(self, screen: Surface, camera: Vector2):
-        rect = Rect(self.rect.left - camera.x, self.rect.top - camera.y, self.rect.w, self.rect.h)
+        rect = Rect(
+            self.rect.left - camera.x,
+            self.rect.top - camera.y,
+            self.rect.w,
+            self.rect.h,
+        )
         draw.rect(screen, Color(255, 0, 0), rect, width=1)
