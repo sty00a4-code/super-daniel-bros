@@ -183,7 +183,6 @@ class Player(Entity):
                 self.score[key] += 1
             else:
                 self.score[key] =  1
-            print(self.score)
             game.tilemap.set(current_tile_pos[0], current_tile_pos[1], 0) 
     def throw_egg(self, game):
         egg = Egg()
