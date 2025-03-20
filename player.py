@@ -1,47 +1,10 @@
 from settings import *
-import pygame as pg
 from pygame import *
 from tilemap import *
 from enum import Enum
-from time import time as t
 from entities import Entity
 from egg import *
-
-class Animation:
-    """Animation class consisting of a list of sprites and an animation speed
-    """
-    def __init__(self, sprites: list[Surface], speed: float = 1):
-        self.sprites = sprites
-        self.speed = speed
-        self.time = 0
-    def cycle(self, dt) -> Surface:
-        self.time += dt
-        """Returns the current frame of the animation dependent on the time
-        
-        Returns:
-            Surface: the current frame
-        """
-        if len(self.sprites) == 1:
-            return self.sprites[0]
-        return self.sprites[int(self.time * self.speed % len(self.sprites))]
-
-# player animations
-ANIMATIONS = dict()
-ANIMATIONS["idle"] = Animation([pg.image.load("assets/duck/idle.png")])
-ANIMATIONS["walk"] = Animation([
-    pg.image.load("assets/duck/walk_1.png"),
-    pg.image.load("assets/duck/idle.png")
-], 20)
-ANIMATIONS["jump"] = Animation([pg.image.load("assets/duck/jump.png")])
-ANIMATIONS["glide"] = Animation([
-    pg.image.load("assets/duck/glide_1.png"),
-    pg.image.load("assets/duck/glide_2.png"),
-    pg.image.load("assets/duck/glide_3.png"),
-    pg.image.load("assets/duck/glide_2.png"),
-], 20)
-ANIMATIONS["attack"] = Animation([pg.image.load("assets/duck/idle.png")])
-ANIMATIONS["throw"] = Animation([pg.image.load("assets/duck/throw.png")])
-
+from animation import load_animations
 
 class State(Enum):
     Idle = "idle"
@@ -85,44 +48,46 @@ class Player(Entity):
     """Main player class
     """
     def __init__(self, pos: Vector2):
-        # also has position
-        self.rect = Rect(0, 0, TILE_SIZE, TILE_SIZE)
-        self.rect.center = (pos.x, pos.y)
-        self.vel = Vector2(0, 0)
-        self.state = State.Idle
-        self.grounded = False
-        self.air_time = 0
-        self.dir = 1
-        self.throw_time = 0
-        self.charge = 0
+        self.rect = Rect(0, 0, TILE_SIZE, TILE_SIZE) # Rectangle with position and size
+        self.rect.center = (pos.x, pos.y) # sets the center of the rect
+        self.vel = Vector2(0, 0) # velocity for physics
+        self.state = State.Idle # current state
+        self.animations = load_animations("duck") # animations
+        self.grounded = False # on the a ground or not
+        self.air_time = 0 # how long in the air
+        self.dir = 1 # facing direction
+        self.throw_time = 0 # how long since the last time thrown
+        self.charge = 0 # how long the throw button is held
         self.score =  dict()
     def start(self, tilemap: TileMap):
+        # spawn in tilemap
         self.rect.x = tilemap.spawn[0] * TILE_SIZE
         self.rect.y = tilemap.spawn[1] * TILE_SIZE
-    def update(self, dt, game):
+    def update(self, dt: float, game):
+        last_state = self.state # remember state
         self.air_time += dt
         self.throw_time += dt
-        current_tile_pos = game.tilemap.real_to_tile(self.rect.center[0], self.rect.center[1])
-        current_tile = game.tilemap.get(current_tile_pos[0], current_tile_pos[1])
+        
+        self.animations.update(dt)
+        
         if self.grounded:
+            # not in air anymore
             self.air_time = 0
             if self.state in [State.Jump, State.Glide]:
                 self.state = State.Idle
         acc = 0
         if self.state == State.Throw:
+            # face in the direction of the mouse
             if game.input.cursor.x > self.rect.centerx:
                 self.dir = 1
             elif game.input.cursor.x < self.rect.centerx:
                 self.dir = -1
-            self.charge += dt
-            if not game.input.throw:
+            self.charge += dt # build up charge
+            if not game.input.throw: # throw button released
                 self.throw_egg(game)
                 self.state = State.Idle
-            if game.input.right:
-                self.dir = 1
-            if game.input.left:
-                self.dir = -1
         elif self.state in [State.Idle, State.Walk]:
+            # move
             if game.input.right:
                 self.dir = 1
                 acc += 1
@@ -133,8 +98,10 @@ class Player(Entity):
                 self.state = State.Walk
             else:
                 self.state = State.Idle
+            # apply to velocity
             self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
         elif self.state in [State.Jump, State.Glide]:
+            # move without changing to walk state
             if game.input.right:
                 self.dir = 1
                 acc += 1
@@ -143,11 +110,14 @@ class Player(Entity):
                 acc -= 1
             self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
         
+        # gliding
         if game.input.jump and self.vel.y > PLAYER_GLIDE_VEL:
             self.vel.y = PLAYER_GLIDE_VEL
+        # jumping
         if game.input.jump:
             if self.air_time < PLAYER_LEAP_TIME:
                 self.vel.y = -PLAYER_JUMP
+        # friction
         if acc == 0 and self.grounded:
             if self.vel.x > PLAYER_FRICTION:
                 self.vel.x -= PLAYER_FRICTION
@@ -155,28 +125,35 @@ class Player(Entity):
                 self.vel.x += PLAYER_FRICTION
             else:
                 self.vel.x = 0
+        # limit velocity
         if self.vel.x > PLAYER_MAX_VEL:
             self.vel.x = PLAYER_MAX_VEL
         elif self.vel.x < -PLAYER_MAX_VEL:
             self.vel.x = -PLAYER_MAX_VEL
         
-        self.vel.y += GRAVITY
+        self.vel.y += GRAVITY # apply gravity
+        # update position
         self.rect.x += self.vel.x * dt
         self.rect.y += self.vel.y * dt
         
         self.collide(game)
         self.is_grounded(game)
+        
+        # update state of not grounded anymore
         if not self.grounded:
             if self.vel.y > 0 and game.input.jump:
                 self.state = State.Glide
             else:
                 self.state = State.Jump
-                
+        # update to throw state
         if self.state in [State.Idle, State.Walk] and game.input.throw:
             if self.throw_time > PLAYER_THROW_DELAY:
                 self.state = State.Throw
             else:
                 self.charge = 0
+        # collectibles
+        current_tile_pos = game.tilemap.real_to_tile(self.rect.centerx, self.rect.centery)
+        current_tile = game.tilemap.get(current_tile_pos[0], current_tile_pos[1])
         if TILE_DATA[current_tile].collectible and TILE_DATA[current_tile].item:
             key = TILE_DATA[current_tile].item
             if key in self.score:
@@ -184,6 +161,9 @@ class Player(Entity):
             else:
                 self.score[key] =  1
             game.tilemap.set(current_tile_pos[0], current_tile_pos[1], 0) 
+        # state changed, reset time
+        if last_state != self.state:
+            self.animations.play(self.state.value)
     def throw_egg(self, game):
         egg = Egg()
         egg.rect.centerx = self.rect.left if self.dir > 0 else self.rect.right
@@ -195,9 +175,9 @@ class Player(Entity):
         game.entities.append(egg)
         self.throw_time = 0
         self.charge = 0
-    def draw(self, screen: Surface, camera: Vector2, dt: float, debug = False):
+    def draw(self, screen: Surface, camera: Vector2, debug = False):
         rect = Rect(self.rect.left - camera.x - TILE_SIZE / 2, self.rect.top - camera.y - TILE_SIZE, self.rect.w, self.rect.h)
-        img = transform.flip(ANIMATIONS[self.state.value].cycle(dt), self.dir == -1, False)
+        img = transform.flip(self.animations.sprite(), self.dir == -1, False)
         screen.blit(img, rect)
         if debug:
             draw.rect(screen, Color(255, 255, 255, 255 // 2), rect, width=1)

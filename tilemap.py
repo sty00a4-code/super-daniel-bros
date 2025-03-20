@@ -7,6 +7,7 @@ from math import sin
 from time import time_ns as t
 global CAMERA
 
+# names for tile ids
 TILE_NAMES = [
     None,
     "dirt",
@@ -22,16 +23,17 @@ TILE_NAMES = [
     "pillar_bottom",
     "pillar_top",
 ]
+# special tile data
 class TileData:
-    def __init__(self, solid = False, item: str = None, action: str = None):
+    def __init__(self, solid = False, item: str = None, action: str = None, collectible = False):
         self.solid = solid
         self.item = item
         self.action = action
         self.collectible = collectible
-default = TileData()
-solid = TileData(solid = True)
-collectible = TileData(collectible = False)
-platform = TileData(solid = "platform")
+default = TileData() # no data
+solid = TileData(solid = True) # solid tile
+platform = TileData(solid = "platform") # one way platform
+# tile data for every tile id
 TILE_DATA = [
     default,
     solid,
@@ -47,6 +49,7 @@ TILE_DATA = [
     default,
     platform,
 ]
+# load tile sprites
 TILE_ASSETS = dict()
 for path in listdir("assets/tiles"):
     if "." not in path:
@@ -55,6 +58,7 @@ for path in listdir("assets/tiles"):
     TILE_ASSETS[name] = pg.image.load(f"assets/tiles/{path}")
 
 TILE_SIZE = 16
+# tile with special data in it
 class Tile:
     def __init__(self, tile: int, data: dict[str, any]):
         self.tile = tile
@@ -78,11 +82,13 @@ class Tile:
             value (any): (new) data
         """
         self.data[key] = value
+# tile map class
 class TileMap:
     def __init__(self, tiles: list[list[Tile|int]], width, height):
         self.tiles = []
         self.background_tiles = []
         self.spawn = (0, 0)
+        # copy over everything
         for y in range(height):
             self.background_tiles.append([])
             self.tiles.append([])
@@ -172,14 +178,15 @@ class TileMap:
         for y in range(int(start.y), int(end.y) + 1):
             for x in range(int(start.x), int(end.x) + 1):
                 tile = self.get(x, y)
-                if tile is Tile:
+                if tile is Tile: # only want the id, no data
                     tile = tile.tile
-                pos = Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera
-                if tile == 2 and debug:
+                pos = Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera # position relative to the camera
+                if tile == 2 and debug: # goal tile
                     draw.rect(surface, Color(0, 255, 0), Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE), width=2)
-                elif TILE_NAMES[tile] is not None:
-                    img = TILE_ASSETS[TILE_NAMES[tile]]
+                elif TILE_NAMES[tile] is not None: # tile exists
+                    img = TILE_ASSETS[TILE_NAMES[tile]] # get image
                     if img is not None:
+                        # item tiles move up and down
                         if TILE_DATA[tile].item is not None:
                             surface.blit(img, Rect(pos.x, pos.y + sin(t() / 200_000_000 + x * y) * 2, TILE_SIZE, TILE_SIZE))
                         else:

@@ -12,6 +12,7 @@ class Egg(Entity):
         self.hit = False
     def update(self, dt, game):
         super().update(dt, game)
+        # delete if hit something
         if self.hit:
             game.entities.remove(self)
     def collide(self, game):
