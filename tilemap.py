@@ -27,8 +27,10 @@ class TileData:
         self.solid = solid
         self.item = item
         self.action = action
+        self.collectible = collectible
 default = TileData()
 solid = TileData(solid = True)
+collectible = TileData(collectible = False)
 platform = TileData(solid = "platform")
 TILE_DATA = [
     default,
@@ -38,9 +40,9 @@ TILE_DATA = [
     solid,
     solid,
     default,
-    TileData(item="bread"),
-    TileData(item="cherries"),
-    TileData(item="raspberry"),
+    TileData(item="bread", collectible = True),
+    TileData(item="cherries", collectible = True),
+    TileData(item="raspberry", collectible = True),
     default,
     default,
     platform,
