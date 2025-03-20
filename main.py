@@ -53,7 +53,7 @@ class Game:
 game = Game()
 
 while True:
-    dt = clock.tick(FPS)/1000 # time since last frame
+    dt = min(clock.tick(FPS)/1000, 1) # time since last frame
     game.update(dt)
 
     window.fill("black")
