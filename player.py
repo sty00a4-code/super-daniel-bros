@@ -95,12 +95,15 @@ class Player(Entity):
         self.dir = 1
         self.throw_time = 0
         self.charge = 0
+        self.score =  dict()
     def start(self, tilemap: TileMap):
         self.rect.x = tilemap.spawn[0] * TILE_SIZE
         self.rect.y = tilemap.spawn[1] * TILE_SIZE
-    def update(self, dt: float, game):
+    def update(self, dt, game):
         self.air_time += dt
         self.throw_time += dt
+        current_tile_pos = game.tilemap.real_to_tile(self.rect.center[0], self.rect.center[1])
+        current_tile = game.tilemap.get(current_tile_pos[0], current_tile_pos[1])
         if self.grounded:
             self.air_time = 0
             if self.state in [State.Jump, State.Glide]:
@@ -174,6 +177,14 @@ class Player(Entity):
                 self.state = State.Throw
             else:
                 self.charge = 0
+        if TILE_DATA[current_tile].collectible and TILE_DATA[current_tile].item:
+            key = TILE_DATA[current_tile].item
+            if key in self.score:
+                self.score[key] += 1
+            else:
+                self.score[key] =  1
+            print(self.score)
+            game.tilemap.set(current_tile_pos[0], current_tile_pos[1], 0) 
     def throw_egg(self, game):
         egg = Egg()
         egg.rect.centerx = self.rect.left if self.dir > 0 else self.rect.right
