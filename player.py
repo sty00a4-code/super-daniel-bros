@@ -85,12 +85,15 @@ class Player(Entity):
         self.grounded = False
         self.air_time = 0
         self.dir = 1
+        self.score =  dict()
     def start(self, tilemap: TileMap):
         self.rect.x = tilemap.spawn[0] * TILE_SIZE
         self.rect.y = tilemap.spawn[1] * TILE_SIZE
     def update(self, dt: float, tilemap: TileMap, input: Input):
         self.state = State.Idle
         self.air_time += dt
+        current_tile_pos = tilemap.real_to_tile(self.rect.center[0], self.rect.center[1])
+        current_tile = tilemap.get(current_tile_pos[0], current_tile_pos[1])
         if self.grounded:
             self.air_time = 0
         acc = 0
@@ -134,6 +137,13 @@ class Player(Entity):
                 self.state = State.Glide
             else:
                 self.state = State.Jump
+        if TILE_DATA[current_tile].collectible and TILE_DATA[current_tile].item:
+            key = TILE_DATA[current_tile].item
+            if key in self.score:
+                self.score[key] += 1
+            else:
+                self.score[key] =  1
+            tilemap.set(current_tile_pos[0], current_tile_pos[1], 0) 
     def draw(self, screen: Surface, camera: Vector2, debug = False):
         rect = Rect(self.rect.left - camera.x - TILE_SIZE / 2, self.rect.top - camera.y - TILE_SIZE, self.rect.w, self.rect.h)
         img = transform.flip(ANIMATIONS[self.state.value].cycle(), self.dir == -1, False)
