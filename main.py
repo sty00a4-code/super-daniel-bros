@@ -23,8 +23,9 @@ class Game:
         self.tilemap.draw(screen, self.camera)
         for entity in self.entities:
             entity.draw(screen, self.camera)
-        self.player.draw(screen, self.camera, dt)
+        self.player.draw(screen, self.camera)
     def update(self, dt):
+        # update input manager
         self.input.mouse(self.camera)
         for e in event.get():
             self.input.event(e)
@@ -36,6 +37,7 @@ class Game:
         for entity in self.entities:
             entity.update(dt, self)
 
+        # update camera
         self.camera.x = self.player.rect.centerx - screen.get_width() / 2
         if self.camera.x < 0:
             self.camera.x = 0
@@ -51,14 +53,12 @@ class Game:
 game = Game()
 
 while True:
-    dt = clock.tick(FPS)/1000
+    dt = clock.tick(FPS)/1000 # time since last frame
     game.update(dt)
 
     window.fill("black")
     screen.fill("cyan")
-    # Draw Start
     game.draw(screen)
-    # Draw End
     window.blit(transform.scale(screen, window.get_size()), (0, 0))
     display.flip()
     clock.tick(FPS)

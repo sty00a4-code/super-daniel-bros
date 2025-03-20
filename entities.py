@@ -10,9 +10,11 @@ class Entity:
         self.grounded = False
         self.dir = 1
     def update(self, dt: float, game):
-        self.vel.y += GRAVITY
+        self.vel.y += GRAVITY # apply gravity
+        # apply friction
         if self.grounded:
             self.vel.x *= 0.9
+        # apply velocity
         self.rect.x += self.vel.x * dt
         self.rect.y += self.vel.y * dt
         self.collide(game)
@@ -146,5 +148,5 @@ class Entity:
                         self.rect.right = c.left
                         self.vel.x = 0
     def draw(self, screen: Surface, camera: Vector2):
-        rect = Rect(self.rect.left - camera.x - TILE_SIZE / 2, self.rect.top - camera.y - TILE_SIZE, self.rect.w, self.rect.h)
-        draw.rect(screen, Color(255, 0, 0), self.rect, width=1)
+        rect = Rect(self.rect.left - camera.x, self.rect.top - camera.y, self.rect.w, self.rect.h)
+        draw.rect(screen, Color(255, 0, 0), rect, width=1)
