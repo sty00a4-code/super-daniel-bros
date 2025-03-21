@@ -12,6 +12,7 @@ class Entity:
         self.wall_left = False
         self.wall_right = False
         self.dir = 1
+        self.transparent = False
 
     def update(self, dt: float, game):
         self.vel.y += GRAVITY  # apply gravity

@@ -2,6 +2,7 @@ from settings import *
 from pygame import *
 from tilemap import *
 from entities.entity import Entity
+from entities.explosion import Explosion
 
 EGG_IMG = image.load("assets/tiles/egg.png")
 
@@ -16,11 +17,13 @@ class Egg(Entity):
         for entity in game.entities:
             if entity == self:
                 continue
-            if entity.rect.colliderect(self.rect):
+            if entity.rect.colliderect(self.rect) and not entity.transparent:
                 entity.damage(game, self)
                 self.hit = True
         # delete if hit something
         if self.hit:
+            test = Explosion(game, self.rect)
+            game.entities.append(test)
             self.destroy(game)
 
     def collide(self, game):

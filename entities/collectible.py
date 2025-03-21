@@ -9,6 +9,7 @@ class Collectible(Entity):
         super().__init__(Rect(0, 0, TILE_SIZE, TILE_SIZE))
         self.name = name
         self.animations = load_animations(name)
+        self.transparent = True
     def update(self, dt, game):
         if game.player.rect.colliderect(self.rect):
             if self.name in game.player.score:
