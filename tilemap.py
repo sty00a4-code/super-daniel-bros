@@ -83,7 +83,7 @@ for path in listdir("assets/tiles"):
 
 # tile map class
 class TileMap:
-    def __init__(self, tiles: list[list[Tile | int]], width, height):
+    def __init__(self, tiles: list[list[int]], width, height):
         self.tiles = []
         self.background_tiles = []
         self.spawn = (0, 0)
@@ -155,7 +155,7 @@ class TileMap:
         """
         return (int(x / TILE_SIZE), int(y / TILE_SIZE))
 
-    def set(self, x: int, y: int, tile: Tile | int) -> bool:
+    def set(self, x: int, y: int, tile: int) -> bool:
         """set tile at the position to `tile`
 
         Args:
