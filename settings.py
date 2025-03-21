@@ -14,3 +14,5 @@ COLLECTIBLES = {
     "cherries": 1,
 }
 ITEMS = ["tabasco", "bomb"]
+RAT_SPEED = 200
+RAT_SEE_DISTANCE = TILE_SIZE * 10

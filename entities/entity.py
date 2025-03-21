@@ -9,6 +9,8 @@ class Entity:
         self.rect = rect
         self.vel = Vector2(0, 0)
         self.grounded = False
+        self.wall_left = False
+        self.wall_right = False
         self.dir = 1
 
     def update(self, dt: float, game):
@@ -21,6 +23,8 @@ class Entity:
         self.rect.y += self.vel.y * dt
         self.collide(game)
         self.is_grounded(game)
+        self.is_wall_left(game)
+        self.is_wall_right(game)
 
     def is_grounded(self, game):
         self.grounded = False
@@ -30,6 +34,22 @@ class Entity:
             tile = tile.tile
         if TILE_DATA[tile].solid:
             self.grounded = True
+    def is_wall_left(self, game):
+        self.wall_left = False
+        (cx, cy) = (self.rect.left - 1, self.rect.centery)
+        tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+        if tile is Tile:
+            tile = tile.tile
+        if TILE_DATA[tile].solid:
+            self.wall_left = True
+    def is_wall_right(self, game):
+        self.wall_right = False
+        (cx, cy) = (self.rect.right + 1, self.rect.centery)
+        tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+        if tile is Tile:
+            tile = tile.tile
+        if TILE_DATA[tile].solid:
+            self.wall_right = True
 
     def damage(self, game, entity):
         pass
