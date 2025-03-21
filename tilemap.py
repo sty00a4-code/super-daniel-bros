@@ -7,23 +7,6 @@ from math import sin
 from time import time_ns as t
 
 
-# special tile data
-class TileData:
-    def __init__(
-        self,
-        name: str = None,
-        solid=False,
-        action: str = None,
-        collectible=False,
-        spawn=False,
-    ):
-        self.name = name
-        self.solid = solid
-        self.action = action
-        self.collectible = collectible
-        self.spawn = spawn
-
-
 # tile with special data in it
 class Tile:
     def __init__(self, tile: int, spawn=None):
@@ -51,27 +34,6 @@ class Tile:
         """
         self.data[key] = value
 
-
-default = TileData()  # no data
-# tile data for every tile id
-TILE_DATA = [
-    default,
-    TileData(name="dirt", solid=True),
-    TileData(action="goal"),
-    TileData(name="grass", solid=True),
-    TileData(name="stone", solid=True),
-    TileData(name="stone_slab", solid=True),
-    TileData(name="water_light"),
-    TileData(name="bread", spawn=True),
-    TileData(name="cherries", spawn=True),
-    TileData(name="raspberry", spawn=True),
-    TileData(name="pillar"),
-    TileData(name="pillar_bottom"),
-    TileData(name="pillar_top"),
-    TileData(name="marble", solid=True),
-    TileData(name="tabasco", spawn=True),
-    TileData(name="rat", spawn=True),
-]
 # load tile sprites
 TILE_ASSETS = dict()
 for path in listdir("assets/tiles"):

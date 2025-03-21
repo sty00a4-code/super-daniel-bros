@@ -5,6 +5,9 @@ from entities.entity import Entity
 from animation import load_animations
 from enum import Enum
 
+RAT_SPEED = 200
+RAT_SEE_DISTANCE = TILE_SIZE * 6
+
 class RatState(Enum):
     Idle = "idle"
     Walk = "walk"

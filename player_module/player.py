@@ -7,6 +7,14 @@ from entities.entity import Entity
 from entities.egg import Egg
 from animation import load_animations
 
+PLAYER_SPEED = 60
+PLAYER_FRICTION = 40
+PLAYER_MAX_VEL = 310
+PLAYER_JUMP = 420
+PLAYER_LEAP_TIME = 0.1
+PLAYER_GLIDE_VEL = 100
+PLAYER_THROW_DELAY = 0.25
+
 class Player(Entity):
     """Main player class"""
 
