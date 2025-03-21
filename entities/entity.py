@@ -90,7 +90,7 @@ class Entity:
                 if self.rect.colliderect(c):
                     self.rect.top = c.bottom
                     self.vel.y = 0
-                    self.air_time = PLAYER_LEAP_TIME
+                    self.air_time = 1
         # left
         if self.vel.x < 0:
             (cx, cy) = (self.rect.left, self.rect.centery)
