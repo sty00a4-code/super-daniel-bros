@@ -4,6 +4,10 @@ from player_module.player import Player
 from player_module.input import Input
 from tilemap import load_map, TILE_SIZE, TILE_DATA, Tile
 from entities import rat, collectible, item
+from game_state import GameState
+
+LEVEL = ["test"]
+GOAL_TIME = 1
 
 class Game:
     def __init__(self, screen: Surface):
@@ -11,10 +15,23 @@ class Game:
         self.camera = Vector2(0, 0)
         self.input = Input()
         self.player = Player(Vector2(0, 0))
-        self.tilemap = load_map("test")
-        self.player.start(self.tilemap)
+        self.level = 0
+        self.tilemap = None
+        self.state = GameState.Game
         self.entities = []
         self.spawn_stack = []
+        self.scene = None
+        self.timer = 0
+        self.start()
+    
+    def start(self):
+        self.tilemap = load_map(LEVEL[self.level])
+        self.player.start(self.tilemap)
+        self.state = GameState.Game
+        self.entities = []
+        self.spawn_stack = []
+        self.scene = None
+        self.timer = 0
 
     def draw(self):
         self.tilemap.draw(self.screen, self.camera)
@@ -41,6 +58,16 @@ class Game:
         self.entities.append(entity)
         print(f"[SPAWNED] {entity.__class__}")
     
+    def goal(self):
+        self.state = GameState.Goal
+    
+    def next_level(self):
+        self.level += 1
+        if self.level >= len(LEVEL):
+            quit()
+            exit()
+        self.start()
+    
     def update(self, dt):
         # update input manager
         self.input.mouse(self.camera)
@@ -49,17 +76,24 @@ class Game:
             if e.type == QUIT:
                 exit()
                 quit()
+        
+        if self.timer < GOAL_TIME:
+            self.timer += dt
+        else:
+            self.next_level()
 
-        self.player.update(dt, self)
-        self.tilemap.update(dt, self)
-        for spawn in self.spawn_stack:
-            self.spawn(spawn[0], spawn[1], spawn[2])
-        self.spawn_stack.clear()
-        for entity in self.entities:
-            entity.update(dt, self)
+        if self.state == GameState.Game:
+            self.player.update(dt, self)
+            self.tilemap.update(dt, self)
+            for spawn in self.spawn_stack:
+                self.spawn(spawn[0], spawn[1], spawn[2])
+            self.spawn_stack.clear()
+            for entity in self.entities:
+                entity.update(dt, self)
 
         # update camera
-        self.camera.x = self.player.rect.centerx - self.screen.get_width() / 2
+        if self.state == GameState.Game:
+            self.camera.x = self.player.rect.centerx - self.screen.get_width() / 2
         if self.camera.x < 0:
             self.camera.x = 0
         if self.camera.y < 0:

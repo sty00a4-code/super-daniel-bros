@@ -45,7 +45,6 @@ class Player(Entity):
         self.animations.update(dt)
         self.update_ground_state()
 
-        
         acc = 0
         if self.state == State.Throw:
             self.handle_throw(game, dt)
@@ -81,6 +80,7 @@ class Player(Entity):
         self.rect.x += self.vel.x * dt
         self.rect.y += self.vel.y * dt
 
+        self.check_goal(game)
         self.collide(game)
         self.is_grounded(game)
 
@@ -92,6 +92,16 @@ class Player(Entity):
         # state changed, reset time
         if last_state != self.state:
             self.animations.play(self.state.value)
+    
+    def check_goal(self, game):
+        (cx, cy) = (self.rect.centerx, self.rect.centery)
+        c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
+        tile = game.tilemap.get(cx // TILE_SIZE, cy // TILE_SIZE)
+        if tile is Tile:
+            tile = tile.tile
+        if TILE_DATA[tile].action == "goal":
+            if self.rect.colliderect(c):
+                game.goal()
 
     def update_ground_state(self):
         if self.grounded:
