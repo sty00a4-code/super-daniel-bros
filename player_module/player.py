@@ -80,7 +80,6 @@ class Player(Entity):
         self.update_air_state(game)
         # update to throw state
         self.update_throw_state(game)
-        self.handle_collectibles(game)
         
         # state changed, reset time
         if last_state != self.state:
@@ -148,20 +147,6 @@ class Player(Entity):
             if not game.input.throw:  # throw button released
                 self.throw_egg(game)
                 self.state = State.Idle
-
-    
-    def handle_collectibles(self, game):
-        current_tile_pos = game.tilemap.real_to_tile(
-            self.rect.centerx, self.rect.centery
-        )
-        current_tile = game.tilemap.get(current_tile_pos[0], current_tile_pos[1])
-        if TILE_DATA[current_tile].collectible:
-            key = TILE_DATA[current_tile].name
-            if key in self.score:
-                self.score[key] += 1
-            else:
-                self.score[key] = 1
-            game.tilemap.set(current_tile_pos[0], current_tile_pos[1], 0)
         
 
     def throw_egg(self, game):

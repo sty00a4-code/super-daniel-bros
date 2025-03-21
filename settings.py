@@ -7,3 +7,10 @@ PLAYER_JUMP = 420
 PLAYER_LEAP_TIME = 0.1
 PLAYER_GLIDE_VEL = 100
 PLAYER_THROW_DELAY = 0.25
+TILE_SIZE = 16
+COLLECTIBLES = {
+    "bread": 5,
+    "raspberry": 2,
+    "cherries": 1,
+}
+ITEMS = ["tabasco", "bomb"]

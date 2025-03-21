@@ -15,48 +15,20 @@ class TileData:
         solid=False,
         action: str = None,
         collectible=False,
+        spawn=False,
     ):
         self.name = name
         self.solid = solid
         self.action = action
         self.collectible = collectible
-
-
-default = TileData()  # no data
-# tile data for every tile id
-TILE_DATA = [
-    default,
-    TileData(name="dirt", solid=True),
-    TileData(action="goal"),
-    TileData(name="grass", solid=True),
-    TileData(name="stone", solid=True),
-    TileData(name="stone_slab", solid=True),
-    TileData(name="water_light"),
-    TileData(name="bread", collectible=True),
-    TileData(name="cherries", collectible=True),
-    TileData(name="raspberry", collectible=True),
-    TileData(name="pillar"),
-    TileData(name="pillar_bottom"),
-    TileData(name="pillar_top"),
-    TileData(name="marble", solid=True),
-    TileData(name="tabasco", collectible=True),
-]
-# load tile sprites
-TILE_ASSETS = dict()
-for path in listdir("assets/tiles"):
-    if "." not in path:
-        continue
-    name = path.split(".")[0]
-    TILE_ASSETS[name] = pg.image.load(f"assets/tiles/{path}")
-
-TILE_SIZE = 16
+        self.spawn = spawn
 
 
 # tile with special data in it
 class Tile:
-    def __init__(self, tile: int, data: dict[str, any]):
+    def __init__(self, tile: int, spawn=None):
         self.tile = tile
-        self.data = data
+        self.spawn = spawn
 
     def get(self, key: str) -> any:
         """get data
@@ -78,6 +50,35 @@ class Tile:
             value (any): (new) data
         """
         self.data[key] = value
+
+
+default = TileData()  # no data
+# tile data for every tile id
+TILE_DATA = [
+    default,
+    TileData(name="dirt", solid=True),
+    TileData(action="goal"),
+    TileData(name="grass", solid=True),
+    TileData(name="stone", solid=True),
+    TileData(name="stone_slab", solid=True),
+    TileData(name="water_light"),
+    TileData(name="bread", spawn=True),
+    TileData(name="cherries", spawn=True),
+    TileData(name="raspberry", spawn=True),
+    TileData(name="pillar"),
+    TileData(name="pillar_bottom"),
+    TileData(name="pillar_top"),
+    TileData(name="marble", solid=True),
+    TileData(name="tabasco", spawn=True),
+    TileData(name="rat", spawn=True),
+]
+# load tile sprites
+TILE_ASSETS = dict()
+for path in listdir("assets/tiles"):
+    if "." not in path:
+        continue
+    name = path.split(".")[0]
+    TILE_ASSETS[name] = pg.image.load(f"assets/tiles/{path}")
 
 
 # tile map class
@@ -171,6 +172,19 @@ class TileMap:
             return False
         self.tiles[y][x] = tile
         return True
+
+    def update(self, dt: float, game):
+        start = game.camera / TILE_SIZE
+        (width, height) = game.screen.get_size()
+        end = start + Vector2(width, height) / TILE_SIZE
+        for y in range(int(start.y), int(end.y) + 1):
+            for x in range(int(start.x), int(end.x) + 1):
+                tile = self.get(x, y)
+                if tile is Tile:
+                    tile = tile.tile
+                if TILE_DATA[tile].spawn:
+                    game.push_spawn(x, y, tile)
+                    self.set(x, y, 0)
 
     def draw(self, surface: Surface, camera: Vector2, debug=False):
         start = camera / TILE_SIZE

@@ -1,10 +1,9 @@
 from settings import *
-import pygame as pg
 from pygame import *
 from tilemap import *
 from entities.entity import Entity
 
-EGG_IMG = image.load("assets/entities/egg.png")
+EGG_IMG = image.load("assets/tiles/egg.png")
 
 
 class Egg(Entity):
@@ -14,13 +13,15 @@ class Egg(Entity):
 
     def update(self, dt, game):
         super().update(dt, game)
+        for entity in game.entities:
+            if entity == self:
+                continue
+            if entity.rect.colliderect(self.rect):
+                entity.damage(game, self)
+                self.hit = True
         # delete if hit something
         if self.hit:
             self.destroy(game)
-            game.entities.remove(self)
-
-    def destroy(self, game):
-        pass
 
     def collide(self, game):
         (cx, cy) = (self.rect.centerx, self.rect.centery)

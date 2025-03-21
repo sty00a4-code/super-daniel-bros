@@ -1,7 +1,9 @@
+from settings import *
 from pygame import *
 from player_module.player import Player
 from player_module.input import Input
-from tilemap import load_map, TILE_SIZE
+from tilemap import load_map, TILE_SIZE, TILE_DATA, Tile
+from entities import rat, collectible, item
 
 class Game:
     def __init__(self, screen: Surface):
@@ -12,6 +14,7 @@ class Game:
         self.tilemap = load_map("test")
         self.player.start(self.tilemap)
         self.entities = []
+        self.spawn_stack = []
 
     def draw(self):
         self.tilemap.draw(self.screen, self.camera)
@@ -19,6 +22,25 @@ class Game:
             entity.draw(self.screen, self.camera)
         self.player.draw(self.screen, self.camera)
 
+    def push_spawn(self, x: int, y: int, tile: Tile):
+        self.spawn_stack.append((x, y, tile))
+    
+    def spawn(self, x: int, y: int, tile: Tile):
+        entity = None
+        if TILE_DATA[tile].name in COLLECTIBLES:
+            entity = collectible.Collectible(TILE_DATA[tile].name)
+        elif TILE_DATA[tile].name in ITEMS:
+            entity = item.Item(TILE_DATA[tile].name)
+        elif TILE_DATA[tile].name == "rat":
+            entity = rat.Rat()
+        else:
+            print(f"[ERROR] unknown entity '{TILE_DATA[tile].name}'")
+            return
+        entity.rect.x = x * TILE_SIZE
+        entity.rect.y = y * TILE_SIZE
+        self.entities.append(entity)
+        print(f"[SPAWNED] {entity.__class__}")
+    
     def update(self, dt):
         # update input manager
         self.input.mouse(self.camera)
@@ -29,6 +51,10 @@ class Game:
                 quit()
 
         self.player.update(dt, self)
+        self.tilemap.update(dt, self)
+        for spawn in self.spawn_stack:
+            self.spawn(spawn[0], spawn[1], spawn[2])
+        self.spawn_stack.clear()
         for entity in self.entities:
             entity.update(dt, self)
 

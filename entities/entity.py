@@ -1,7 +1,7 @@
 from settings import *
 import pygame as pg
 from pygame import *
-from tilemap import *
+from tilemap import TILE_DATA, Tile
 
 
 class Entity:
@@ -30,6 +30,12 @@ class Entity:
             tile = tile.tile
         if TILE_DATA[tile].solid:
             self.grounded = True
+
+    def damage(self, game, entity):
+        pass
+    
+    def destroy(self, game):
+        game.entities.remove(self)
 
     def collide(self, game):
         if self.rect.left < 0:
