@@ -70,17 +70,20 @@ class Game:
     
     def update(self, dt):
         # update input manager
-        self.input.mouse(self.camera)
-        for e in event.get():
-            self.input.event(e)
-            if e.type == QUIT:
-                exit()
-                quit()
+        if self.state == GameState.Game:
+            self.input.mouse(self.camera)
+            for e in event.get():
+                self.input.event(e)
+                if e.type == QUIT:
+                    exit()
+                    quit()
         
-        if self.timer < GOAL_TIME:
-            self.timer += dt
-        else:
-            self.next_level()
+        if self.state == GameState.Goal:
+            self.player.update(dt, self)
+            if self.timer < GOAL_TIME:
+                self.timer += dt
+            else:
+                self.next_level()
 
         if self.state == GameState.Game:
             self.player.update(dt, self)
