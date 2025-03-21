@@ -89,6 +89,11 @@ class Player(Entity):
         # update to throw state
         self.update_throw_state(game)
         
+        # dead
+        if self.rect.bottom > game.tilemap.height * TILE_SIZE - 1:
+            self.rect.bottom = game.tilemap.height * TILE_SIZE - 1
+            game.dead()
+        
         # state changed, reset time
         if last_state != self.state:
             self.animations.play(self.state.value)
