@@ -22,6 +22,7 @@ class Player(Entity):
         self.throw_time = 0  # how long since the last time thrown
         self.charge = 0  # how long the throw button is held
         self.score = dict()
+        self.acc = 0
 
     def start(self, tilemap: TileMap):
         # spawn in tilemap
@@ -34,55 +35,26 @@ class Player(Entity):
         self.throw_time += dt
 
         self.animations.update(dt)
+        self.update_ground_state()
 
-        if self.grounded:
-            # not in air anymore
-            self.air_time = 0
-            if self.state in [State.Jump, State.Glide]:
-                self.state = State.Idle
+        
         acc = 0
         if self.state == State.Throw:
-            # face in the direction of the mouse
-            if game.input.cursor.x > self.rect.centerx:
-                self.dir = 1
-            elif game.input.cursor.x < self.rect.centerx:
-                self.dir = -1
-            self.charge += dt  # build up charge
-            if not game.input.throw:  # throw button released
-                self.throw_egg(game)
-                self.state = State.Idle
+            self.handle_throw(game, dt)
+           
         elif self.state in [State.Idle, State.Walk]:
-            # move
-            if game.input.right:
-                self.dir = 1
-                acc += 1
-                self.state = State.Walk
-            elif game.input.left:
-                self.dir = -1
-                acc -= 1
-                self.state = State.Walk
-            else:
-                self.state = State.Idle
-            # apply to velocity
-            self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
+            self.handle_walk_and_idle(game)
         elif self.state in [State.Jump, State.Glide]:
-            # move without changing to walk state
-            if game.input.right:
-                self.dir = 1
-                acc += 1
-            if game.input.left:
-                self.dir = -1
-                acc -= 1
-            self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
-
-        # gliding
+            self.handle_jump_and_glide(game)
+            
+        # gliding (add "physics")
         if game.input.jump and self.vel.y > PLAYER_GLIDE_VEL:
             self.vel.y = PLAYER_GLIDE_VEL
-        # jumping
+        # jumping(add "physics")
         if game.input.jump:
             if self.air_time < PLAYER_LEAP_TIME:
                 self.vel.y = -PLAYER_JUMP
-        # friction
+        # friction(add "physic")
         if acc == 0 and self.grounded:
             if self.vel.x > PLAYER_FRICTION:
                 self.vel.x -= PLAYER_FRICTION
@@ -105,18 +77,80 @@ class Player(Entity):
         self.is_grounded(game)
 
         # update state of not grounded anymore
+        self.update_air_state(game)
+        # update to throw state
+        self.update_throw_state(game)
+        self.handle_collectibles(game)
+        
+        # state changed, reset time
+        if last_state != self.state:
+            self.animations.play(self.state.value)
+
+    def update_ground_state(self):
+        if self.grounded:
+            # not in air anymore
+            self.air_time = 0
+            if self.state in [State.Jump, State.Glide]:
+                self.state = State.Idle
+    
+    def update_air_state(self, game):
+        """Handles the player's state when not grounded"""
         if not self.grounded:
             if self.vel.y > 0 and game.input.jump:
                 self.state = State.Glide
             else:
                 self.state = State.Jump
-        # update to throw state
+
+    def update_throw_state(self, game):
+        """Handles transition to throw state"""
         if self.state in [State.Idle, State.Walk] and game.input.throw:
             if self.throw_time > PLAYER_THROW_DELAY:
                 self.state = State.Throw
             else:
                 self.charge = 0
-        # collectibles
+
+    def handle_jump_and_glide(self, game):
+        # move without changing to walk state
+        acc = 0
+        if game.input.right:
+            self.dir = 1
+            acc += 1
+        if game.input.left:
+            self.dir = -1
+            acc -= 1
+        self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
+
+
+    def handle_walk_and_idle(self, game):
+        acc = 0
+        if game.input.right:
+            self.dir = 1
+            acc += 1
+            self.state = State.Walk
+        elif game.input.left:
+            self.dir = -1
+            acc -= 1
+            self.state = State.Walk
+        else:
+            self.state = State.Idle
+
+        # apply to velocity
+        self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
+    
+
+    def handle_throw(self, game, dt):
+         # face in the direction of the mouse
+            if game.input.cursor.x > self.rect.centerx:
+                self.dir = 1
+            elif game.input.cursor.x < self.rect.centerx:
+                self.dir = -1
+            self.charge += dt  # build up charge
+            if not game.input.throw:  # throw button released
+                self.throw_egg(game)
+                self.state = State.Idle
+
+    
+    def handle_collectibles(self, game):
         current_tile_pos = game.tilemap.real_to_tile(
             self.rect.centerx, self.rect.centery
         )
@@ -128,9 +162,7 @@ class Player(Entity):
             else:
                 self.score[key] = 1
             game.tilemap.set(current_tile_pos[0], current_tile_pos[1], 0)
-        # state changed, reset time
-        if last_state != self.state:
-            self.animations.play(self.state.value)
+        
 
     def throw_egg(self, game):
         egg = Egg()
