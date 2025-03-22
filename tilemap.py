@@ -226,6 +226,15 @@ if __name__ == "__main__":
     screen = Surface((1920 / 4, 1080 / 4))
     display.set_caption(f"Level: {level_name}")
     clock = time.Clock()
+    
+    font = font.Font("assets/font/JetBrainsMono-Medium.ttf")
+    font.set_bold(True)
+    tutorial_text = [
+        (font.render("[LMB] place", True, "black"), (0, 0)),
+        (font.render("[RMB] delete", True, "black"), (0, 14)),
+        (font.render("[WHEEL] pick", True, "black"), (0, 14 * 2)),
+        (font.render("[E] player spawn", True, "black"), (0, 14 * 3)),
+    ]
 
     selected = 1
     camera = Vector2(0, 0)
@@ -312,6 +321,7 @@ if __name__ == "__main__":
             ),
             width=2,
         )
+        screen.blits(tutorial_text)
         # Draw End
         window.blit(transform.scale(screen, window.get_size()), (0, 0))
         display.flip()
