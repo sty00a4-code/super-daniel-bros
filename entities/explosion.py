@@ -12,7 +12,6 @@ class Explosion(Entity):
     
     def update(self, dt: float, game):
         #super().update(dt, game)
-        print(self.timer)
         self.timer -= dt
         if self.timer <= 0:
             self.destroy(game)

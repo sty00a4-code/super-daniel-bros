@@ -1,0 +1,23 @@
+ was für Animationen ich am sonntag schaffen will:
+
+ - Gorilla endboss:
+    ---- min. 5 Posen (+ mit der Ente) 
+    -attacken Muster
+    -Stun
+    ---- intro
+- raben endboss:
+    ---- finales Design( mohawk? besserer Choker)
+    -- 2 Attacken 
+    - stun Animation
+- Raten Skorpion letzte Attacken
+    stun Animation
+    - 
+-Gegner:
+    - für Level 2 ( skorpion)
+    für Level 3 (kleine Affen)
+- Ente:
+    - Punch combo
+    - Hit Animation
+    - Todesaniation?
+
+
