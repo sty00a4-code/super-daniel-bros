@@ -9,7 +9,7 @@ from entities.egg import Egg
 
 RAT_SPEED = 200
 RAT_SEE_DISTANCE = TILE_SIZE * 6
-RAT_STUNNED_TIME = 1
+RAT_STUNNED_TIME = .75
 
 
 class RatState(Enum):
