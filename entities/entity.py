@@ -13,6 +13,7 @@ class Entity:
         self.dir = 1
         self.body = False
         self.transparent = False
+        self.eminem = False
 
     def update(self, dt: float, game):
         self.vel.y += GRAVITY  # apply gravity

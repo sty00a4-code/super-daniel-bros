@@ -214,7 +214,7 @@ class Player(Entity):
             self.throw_egg_glide(game)
 
     def throw_egg(self, game):
-        egg = self.egg(game)
+        egg = self.egg_factory(game)
         egg.rect.centerx = self.rect.left if self.dir > 0 else self.rect.right
         egg.rect.centery = self.rect.top
         pos = Vector2(self.rect.centerx, self.rect.centery)
@@ -226,14 +226,15 @@ class Player(Entity):
         self.charge = 0
 
     def throw_egg_glide(self, game):
-        egg = self.egg(game)
+        egg = self.egg_factory(game)
         egg.rect.centerx = self.rect.left if self.dir > 0 else self.rect.right
         egg.rect.centery = self.rect.centery
         game.entities.append(egg)
         self.throw_time = 0
         self.charge = 0
+    
 
-    def egg(self, game):
+    def egg_factory(self, game):
         if "bomb" in self.upgrades:
             return Bomb()
         else:

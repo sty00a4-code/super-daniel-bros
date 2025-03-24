@@ -22,7 +22,11 @@ class Egg(Entity):
                 self.hit = True
         # delete if hit something
         if self.hit:
+            game.entities.append(self.persisten_entity_factory(game))
             self.destroy(game)
+
+    def persisten_entity_factory(self, game):
+        return Explosion(game, self.rect)
 
     def collide(self, game):
         (cx, cy) = (self.rect.centerx, self.rect.centery)

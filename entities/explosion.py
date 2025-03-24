@@ -1,22 +1,15 @@
 from pygame import *
 from settings import *
-from entities.entity import Entity
+from entities.persistent_entities import Persistent_entities
 
-class Explosion(Entity):
+class Explosion(Persistent_entities):
 
-    def __init__(self, rect):
-        super().__init__(Rect(0, 0, TILE_SIZE / 2, TILE_SIZE / 2))
+    def __init__(self, game, rect: Rect, lifespan: float = 200, update_after_ticks: int = -1):
+        super().__init__(game, Rect(0, 0, TILE_SIZE / 2, TILE_SIZE / 2), lifespan, update_after_ticks) #Rect_Size is Hitbox_Size
         self.rect = rect
-        self.timer = 0.2
 
-    
     def update(self, dt: float, game):
-        #super().update(dt, game)
-        self.timer -= dt
-        if self.timer <= 0:
-            self.destroy(game)
-
-        
+        super().update(dt, game)
 
     def draw(self, screen, camera):
         rect = Rect(
