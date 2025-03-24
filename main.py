@@ -1,9 +1,9 @@
 from settings import *
 from pygame import *
 from tilemap import *
-from player_module.player import Input, Player
 from entities import *
 from game import Game
+from sys import argv
 
 font.init()
 init()
@@ -13,6 +13,8 @@ display.set_caption("Super Daniel Bros")
 clock = time.Clock()
 
 game = Game(screen)
+if len(argv) > 1:
+    game.start(argv[1])
 
 while True:
     dt = min(clock.tick(FPS) / 1000, 1)  # time since last frame

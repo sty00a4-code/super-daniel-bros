@@ -23,10 +23,11 @@ class Game:
         self.spawn_stack = []
         self.scene = None
         self.timer = 0
-        self.start()
+        self.start(LEVEL[self.level])
     
-    def start(self):
-        self.tilemap = load_map(LEVEL[self.level])
+    def start(self, name):
+        print(f"[LOADED] {name}")
+        self.tilemap = load_map(name)
         self.player.start(self.tilemap)
         self.state = GameState.Game
         self.entities = []
@@ -71,7 +72,7 @@ class Game:
         if self.level >= len(LEVEL):
             quit()
             exit()
-        self.start()
+        self.start(LEVEL[self.level])
     
     def update(self, dt):
         if self.state == GameState.Game:
@@ -102,7 +103,7 @@ class Game:
             if self.timer < DEAD_TIME:
                 self.timer += dt
             else:
-                self.start()
+                self.start(LEVEL[self.level])
 
         # constrain camera
         if self.camera.x < 0:

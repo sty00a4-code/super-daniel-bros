@@ -1,6 +1,6 @@
 from enum import Enum
 
-class GameState:
+class GameState(Enum):
     Game = "game"
     Goal = "goal"
     Dead = "dead"
