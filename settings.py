@@ -42,4 +42,6 @@ TILE_DATA = [
     TileData(name="marble", solid=True),
     TileData(name="tabasco", spawn=True),
     TileData(name="rat", spawn=True),
+    TileData(name="sand_2", solid=True),
+    TileData(name="sandstone", solid=True),
 ]
