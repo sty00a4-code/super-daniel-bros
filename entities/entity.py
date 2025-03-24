@@ -12,6 +12,7 @@ class Entity:
         self.wall_left = False
         self.wall_right = False
         self.dir = 1
+        self.body = False
         self.transparent = False
 
     def update(self, dt: float, game):
@@ -26,7 +27,7 @@ class Entity:
         self.is_grounded(game)
         self.is_wall_left(game)
         self.is_wall_right(game)
-
+    
     def is_grounded(self, game):
         self.grounded = False
         (cx, cy) = (self.rect.centerx, self.rect.bottom + 1)

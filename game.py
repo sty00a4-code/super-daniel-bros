@@ -8,6 +8,7 @@ from game_state import GameState
 
 LEVEL = ["test"]
 GOAL_TIME = 1
+DEAD_TIME = 1
 
 class Game:
     def __init__(self, screen: Surface):
@@ -61,6 +62,10 @@ class Game:
     def goal(self):
         self.state = GameState.Goal
     
+    def dead(self):
+        print(1)
+        self.state = GameState.Dead
+    
     def next_level(self):
         self.level += 1
         if self.level >= len(LEVEL):
@@ -69,23 +74,15 @@ class Game:
         self.start()
     
     def update(self, dt):
-        # update input manager
         if self.state == GameState.Game:
+            # update input manager
             self.input.mouse(self.camera)
             for e in event.get():
                 self.input.event(e)
                 if e.type == QUIT:
                     exit()
                     quit()
-        
-        if self.state == GameState.Goal:
-            self.player.update(dt, self)
-            if self.timer < GOAL_TIME:
-                self.timer += dt
-            else:
-                self.next_level()
-
-        if self.state == GameState.Game:
+            
             self.player.update(dt, self)
             self.tilemap.update(dt, self)
             for spawn in self.spawn_stack:
@@ -93,10 +90,21 @@ class Game:
             self.spawn_stack.clear()
             for entity in self.entities:
                 entity.update(dt, self)
-
-        # update camera
-        if self.state == GameState.Game:
+            # update camera
             self.camera.x = self.player.rect.centerx - self.screen.get_width() / 2
+        elif self.state == GameState.Goal:
+            self.player.update(dt, self)
+            if self.timer < GOAL_TIME:
+                self.timer += dt
+            else:
+                self.next_level()
+        elif self.state == GameState.Dead:
+            if self.timer < DEAD_TIME:
+                self.timer += dt
+            else:
+                self.start()
+
+        # constrain camera
         if self.camera.x < 0:
             self.camera.x = 0
         if self.camera.y < 0:
