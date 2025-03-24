@@ -76,7 +76,7 @@ class TileMap:
                 self.tiles[y].extend([0 for _ in range(self.width, width)])
             self.width = width
 
-    def get(self, x: int, y: int) -> Tile | int:
+    def get(self, x: int, y: int) -> int:
         """Gives back tile
 
         Args:

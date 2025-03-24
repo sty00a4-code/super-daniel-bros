@@ -1,5 +1,4 @@
 from settings import *
-import pygame as pg
 from pygame import *
 from tilemap import TILE_DATA, Tile
 
@@ -13,6 +12,7 @@ class Entity:
         self.wall_right = False
         self.dir = 1
         self.body = False
+        self.transparent = False
 
     def update(self, dt: float, game):
         self.vel.y += GRAVITY  # apply gravity

@@ -19,6 +19,8 @@ class Input:
         self.cursor = Vector2(0, 0)
 
     def mouse(self, camera: Vector2):
+        left, middle, right = mouse.get_pressed(3)
+        self.throw = left
         mouse_pos = mouse.get_pos()
         self.cursor.x = mouse_pos[0] / 2 + camera.x
         self.cursor.y = mouse_pos[1] / 2 + camera.y
@@ -32,4 +34,4 @@ class Input:
             elif event.key == K_w:
                 self.jump = event.type == KEYDOWN
             elif event.key == K_SPACE:
-                self.throw = event.type == KEYDOWN
+                self.attack = event.type == KEYDOWN

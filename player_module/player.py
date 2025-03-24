@@ -1,7 +1,6 @@
 from settings import *
 from pygame import *
 from player_module.state import State
-from player_module.input import Input
 from tilemap import *
 from entities.entity import Entity
 from entities.egg import Egg
@@ -48,10 +47,10 @@ class Player(Entity):
         acc = 0
         if self.state == State.Throw:
             self.handle_throw(game, dt)
-           
         elif self.state in [State.Idle, State.Walk]:
             self.handle_walk_and_idle(game)
         elif self.state in [State.Jump, State.Glide]:
+            self.handle_throw_glide(game)
             self.handle_jump_and_glide(game)
             
         # gliding (add "physics")
@@ -125,9 +124,9 @@ class Player(Entity):
 
     def update_throw_state(self, game):
         """Handles transition to throw state"""
-        if self.state in [State.Idle, State.Walk] and game.input.throw:
+        if self.state in [State.Idle, State.Walk, State.Glide] and game.input.throw:
             if self.throw_time > PLAYER_THROW_DELAY:
-                self.state = State.Throw
+                self.state = State.Throw if self.state != State.Glide else State.Glide
             else:
                 self.charge = 0
 
@@ -161,19 +160,22 @@ class Player(Entity):
     
 
     def handle_throw(self, game, dt):
-         # face in the direction of the mouse
-            if game.input.cursor.x > self.rect.centerx:
-                self.dir = 1
-            elif game.input.cursor.x < self.rect.centerx:
-                self.dir = -1
-            self.charge += dt  # build up charge
-            if not game.input.throw:  # throw button released
-                self.throw_egg(game)
-                self.state = State.Idle
-        
+        # face in the direction of the mouse
+        if game.input.cursor.x > self.rect.centerx:
+            self.dir = 1
+        elif game.input.cursor.x < self.rect.centerx:
+            self.dir = -1
+        self.charge += dt  # build up charge
+        if not game.input.throw:  # throw button released
+            self.throw_egg(game)
+            self.state = State.Idle
+    
+    def handle_throw_glide(self, game):
+        if game.input.throw and self.throw_time > PLAYER_THROW_DELAY and self.state == State.Glide:
+            self.throw_egg_glide(game)
 
     def throw_egg(self, game):
-        egg = Egg()
+        egg = self.egg(game)
         egg.rect.centerx = self.rect.left if self.dir > 0 else self.rect.right
         egg.rect.centery = self.rect.top
         pos = Vector2(self.rect.centerx, self.rect.centery)
@@ -183,6 +185,17 @@ class Player(Entity):
         game.entities.append(egg)
         self.throw_time = 0
         self.charge = 0
+    
+    def throw_egg_glide(self, game):
+        egg = self.egg(game)
+        egg.rect.centerx = self.rect.left if self.dir > 0 else self.rect.right
+        egg.rect.centery = self.rect.centery
+        game.entities.append(egg)
+        self.throw_time = 0
+        self.charge = 0
+    
+    def egg(self, game):
+        return Egg()
 
     def draw(self, screen: Surface, camera: Vector2, debug=False):
         rect = Rect(
