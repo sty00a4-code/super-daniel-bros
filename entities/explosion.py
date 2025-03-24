@@ -4,7 +4,7 @@ from entities.persistent_entities import Persistent_entities
 
 class Explosion(Persistent_entities):
 
-    def __init__(self, game, rect: Rect, lifespan: float = 200, update_after_ticks: int = -1):
+    def __init__(self, game, rect: Rect, lifespan: float = 16, update_after_ticks: int = -1):
         super().__init__(game, Rect(0, 0, TILE_SIZE / 2, TILE_SIZE / 2), lifespan, update_after_ticks) #Rect_Size is Hitbox_Size
         self.rect = rect
 
