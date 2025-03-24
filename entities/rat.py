@@ -4,14 +4,17 @@ from tilemap import *
 from entities.entity import Entity
 from animation import load_animations
 from enum import Enum
+from player_module.state import State
 
 RAT_SPEED = 200
 RAT_SEE_DISTANCE = TILE_SIZE * 6
+
 
 class RatState(Enum):
     Idle = "idle"
     Walk = "walk"
     Charge = "charge"
+
 
 class Rat(Entity):
     def __init__(self):
@@ -20,6 +23,7 @@ class Rat(Entity):
         self.dir = -1
         self.state = RatState.Idle
         self.body = True
+
     def update(self, dt, game):
         last_state = self.state
         self.animations.update(dt)
@@ -27,7 +31,9 @@ class Rat(Entity):
             self.dir = 1
         elif self.wall_right:
             self.dir = -1
-        distance = Vector2(game.player.rect.centerx, game.player.rect.centery).distance_to((self.rect.centerx, self.rect.centery))
+        distance = Vector2(
+            game.player.rect.centerx, game.player.rect.centery
+        ).distance_to((self.rect.centerx, self.rect.centery))
         if self.state == RatState.Idle:
             self.state = RatState.Walk
         elif self.state == RatState.Walk:
@@ -43,6 +49,7 @@ class Rat(Entity):
         super().update(dt, game)
         if last_state != self.state:
             self.animations.play(self.state.value)
+
     def collide_bodies(self, dt: float, game):
         for entity in game.entities:
             if entity == self:
@@ -52,6 +59,12 @@ class Rat(Entity):
                     self.repell(entity)
         if self.rect.colliderect(game.player.rect):
             self.repell(game.player)
+            if (
+                game.player.rect.bottom > self.rect.top
+                and game.player.state != State.Attack
+            ):
+                game.player.damage(game, self)
+
     def repell(self, entity: Entity):
         pos1 = Vector2(self.rect.centerx, self.rect.centery)
         pos2 = Vector2(entity.rect.centerx, entity.rect.centery)
@@ -62,6 +75,7 @@ class Rat(Entity):
             elif force < 0:
                 self.dir = 1
         self.vel.x = (self.rect.w / 2 + entity.rect.w / 2 - force) * 3
+
     def draw(self, screen, camera):
         rect = Rect(
             self.rect.x - camera.x,
@@ -73,5 +87,6 @@ class Rat(Entity):
         img = transform.flip(img, self.dir == 1, False)
         screen.blit(img, rect)
         # draw.rect(screen, "red", self.rect, 1)
+
     def damage(self, game, entity):
         print(f"[HIT] {self.__class__} <- {entity.__class__}")

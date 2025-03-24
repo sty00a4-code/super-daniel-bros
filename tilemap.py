@@ -34,6 +34,7 @@ class Tile:
         """
         self.data[key] = value
 
+
 # load tile sprites
 TILE_ASSETS = dict()
 for path in listdir("assets/tiles"):
@@ -226,7 +227,7 @@ if __name__ == "__main__":
     screen = Surface((1920 / 4, 1080 / 4))
     display.set_caption(f"Level: {level_name}")
     clock = time.Clock()
-    
+
     font = font.Font("assets/font/JetBrainsMono-Medium.ttf")
     font.set_bold(True)
     tutorial_text = [
