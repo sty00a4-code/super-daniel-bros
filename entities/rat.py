@@ -112,5 +112,4 @@ class Rat(Entity):
         if entity.__class__ is Egg:
             self.stunned = 0
             self.state = RatState.Stunned
-            print(self.state)
             self.animations.play(self.state.value)
