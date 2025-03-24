@@ -29,6 +29,7 @@ class TileData:
 default = TileData()  # no data
 # tile data for every tile id
 TILE_DATA = [
+    default,
     TileData(name="dirt", solid=True),
     TileData(action="goal"),
     TileData(name="grass", solid=True),
