@@ -64,7 +64,6 @@ class Game:
         self.state = GameState.Goal
     
     def dead(self):
-        print(1)
         self.state = GameState.Dead
     
     def next_level(self):
