@@ -44,4 +44,5 @@ TILE_DATA = [
     TileData(name="rat", spawn=True),
     TileData(name="sand_2", solid=True),
     TileData(name="sandstone", solid=True),
+    TileData(name="treibsand", solid=False,collectible=True),
 ]
