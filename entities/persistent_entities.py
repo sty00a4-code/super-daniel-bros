@@ -25,7 +25,7 @@ class Persistent_entities(Entity):
                     entity.damage(game, entity)
                     self.hitable_entities.remove(entity)
 
-        if self.count_ticks >= 1000:
+        if self.count_ticks >= self.lifespan:
             self.destroy(game)
         
         self.count_ticks +=1
