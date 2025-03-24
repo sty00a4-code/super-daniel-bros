@@ -17,6 +17,7 @@ PLAYER_THROW_DELAY = 0.25
 PLAYER_DAMAGE_COOLDOWN = 0.5
 PLAYER_KNOCKBACK = 500
 
+
 class Player(Entity):
     """Main player class"""
 
@@ -68,7 +69,7 @@ class Player(Entity):
         elif self.state in [State.Jump, State.Glide]:
             self.handle_throw_glide(game)
             self.handle_jump_and_glide(game)
-            
+
         # gliding (add "physics")
         if game.input.jump and self.vel.y > PLAYER_GLIDE_VEL:
             self.vel.y = PLAYER_GLIDE_VEL
@@ -103,24 +104,28 @@ class Player(Entity):
         self.update_air_state(game)
         # update to throw state
         self.update_throw_state(game)
-        
+
         # dead
         if self.rect.bottom > game.tilemap.height * TILE_SIZE - 1:
             self.rect.bottom = game.tilemap.height * TILE_SIZE - 1
             game.dead()
-        
+
         # state changed, reset time
         if last_state != self.state:
             self.animations.play(self.state.value)
-    
+
     def damage(self, game, entity, damage: int = 1):
         if self.damage_timer >= PLAYER_DAMAGE_COOLDOWN:
             if self.health.damage(damage):
                 game.dead()
             self.damage_timer = 0
-            self.vel.x = PLAYER_KNOCKBACK if self.rect.centerx > entity.rect.centerx else -PLAYER_KNOCKBACK
+            self.vel.x = (
+                PLAYER_KNOCKBACK
+                if self.rect.centerx > entity.rect.centerx
+                else -PLAYER_KNOCKBACK
+            )
             self.vel.y = -PLAYER_KNOCKBACK * 1.5
-    
+
     def check_goal(self, game):
         (cx, cy) = (self.rect.centerx, self.rect.centery)
         c = game.tilemap.get_rect(cx // TILE_SIZE, cy // TILE_SIZE)
@@ -137,7 +142,7 @@ class Player(Entity):
             self.air_time = 0
             if self.state in [State.Jump, State.Glide]:
                 self.state = State.Idle
-    
+
     def update_air_state(self, game):
         """Handles the player's state when not grounded"""
         if not self.grounded:
@@ -165,7 +170,6 @@ class Player(Entity):
             acc -= 1
         self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
 
-
     def handle_walk_and_idle(self, game):
         acc = 0
         if game.input.right:
@@ -181,7 +185,6 @@ class Player(Entity):
 
         # apply to velocity
         self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
-    
 
     def handle_throw(self, game, dt):
         # face in the direction of the mouse
@@ -193,9 +196,13 @@ class Player(Entity):
         if not game.input.throw:  # throw button released
             self.throw_egg(game)
             self.state = State.Idle
-    
+
     def handle_throw_glide(self, game):
-        if game.input.throw and self.throw_time > PLAYER_THROW_DELAY and self.state == State.Glide:
+        if (
+            game.input.throw
+            and self.throw_time > PLAYER_THROW_DELAY
+            and self.state == State.Glide
+        ):
             self.throw_egg_glide(game)
 
     def throw_egg(self, game):
@@ -209,7 +216,7 @@ class Player(Entity):
         game.entities.append(egg)
         self.throw_time = 0
         self.charge = 0
-    
+
     def throw_egg_glide(self, game):
         egg = self.egg(game)
         egg.rect.centerx = self.rect.left if self.dir > 0 else self.rect.right
@@ -217,7 +224,7 @@ class Player(Entity):
         game.entities.append(egg)
         self.throw_time = 0
         self.charge = 0
-    
+
     def egg(self, game):
         return Egg()
 
@@ -229,7 +236,9 @@ class Player(Entity):
             self.rect.h,
         )
         img = transform.flip(self.animations.sprite(), self.dir == -1, False)
-        if self.health.health == 0 or not (self.damage_timer <= PLAYER_DAMAGE_COOLDOWN and bool(t() // 50_000_000 % 2)):
+        if self.health.health == 0 or not (
+            self.damage_timer <= PLAYER_DAMAGE_COOLDOWN and bool(t() // 50_000_000 % 2)
+        ):
             screen.blit(img, rect)
         if debug:
             draw.rect(screen, Color(255, 255, 255, 255 // 2), rect, width=1)

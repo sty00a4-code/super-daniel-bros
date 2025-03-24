@@ -90,6 +90,10 @@ class Rat(Entity):
                 self.dir = entity.dir
             elif force < 0:
                 self.dir = entity.dir
+        if entity.rect.centerx > self.rect.centerx and not self.wall_left:
+            self.rect.right = entity.rect.left
+        elif entity.rect.centerx <= self.rect.centerx and not self.wall_right:
+            self.rect.left = entity.rect.right
         self.vel.x = (self.rect.w / 2 + entity.rect.w / 2 - force) * 3
 
     def draw(self, screen, camera):

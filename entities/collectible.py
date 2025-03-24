@@ -18,6 +18,7 @@ class Collectible(Entity):
                 game.player.score[key] += COLLECTIBLES[self.name]
             else:
                 game.player.score[key] = COLLECTIBLES[self.name]
+            game.player.health.heal()
             self.destroy(game)
 
     def draw(self, screen, camera):
