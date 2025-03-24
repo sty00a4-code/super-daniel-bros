@@ -59,7 +59,10 @@ class Rat(Entity):
                     self.repell(entity)
         if self.rect.colliderect(game.player.rect):
             self.repell(game.player)
-            if game.player.rect.bottom > self.rect.top and game.player.state != State.Attack:
+            if (
+                game.player.rect.bottom > self.rect.top
+                and game.player.state != State.Attack
+            ):
                 game.player.damage(game, self)
 
     def repell(self, entity: Entity):

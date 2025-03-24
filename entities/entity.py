@@ -26,7 +26,7 @@ class Entity:
         self.is_grounded(game)
         self.is_wall_left(game)
         self.is_wall_right(game)
-    
+
     def is_grounded(self, game):
         self.grounded = False
         (cx, cy) = (self.rect.centerx, self.rect.bottom + 1)
@@ -35,6 +35,7 @@ class Entity:
             tile = tile.tile
         if TILE_DATA[tile].solid:
             self.grounded = True
+
     def is_wall_left(self, game):
         self.wall_left = False
         (cx, cy) = (self.rect.left - 1, self.rect.centery)
@@ -43,6 +44,7 @@ class Entity:
             tile = tile.tile
         if TILE_DATA[tile].solid:
             self.wall_left = True
+
     def is_wall_right(self, game):
         self.wall_right = False
         (cx, cy) = (self.rect.right + 1, self.rect.centery)
@@ -54,7 +56,7 @@ class Entity:
 
     def damage(self, game, entity):
         pass
-    
+
     def destroy(self, game):
         game.entities.remove(self)
 
