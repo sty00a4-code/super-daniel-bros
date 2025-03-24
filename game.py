@@ -5,8 +5,9 @@ from player_module.input import Input
 from tilemap import load_map, TILE_SIZE, TILE_DATA, Tile
 from entities import rat, collectible, item
 from game_state import GameState
+from bosses import raven
 
-LEVEL = ["test"]
+LEVEL = ["test", "raven"]
 GOAL_TIME = 1
 DEAD_TIME = 1
 
@@ -22,8 +23,9 @@ class Game:
         self.state = GameState.Game
         self.entities = []
         self.spawn_stack = []
-        self.scene = None
+        self.scene = 0
         self.timer = 0
+        self.boss = None
         self.start(LEVEL[self.level])
 
     def start(self, name):
@@ -33,14 +35,22 @@ class Game:
         self.state = GameState.Game
         self.entities = []
         self.spawn_stack = []
-        self.scene = None
+        self.scene = 0
         self.timer = 0
+        if self.tilemap.boss is not None:
+            self.state = GameState.Scene
+            if self.tilemap.boss == "raven":
+                self.boss = raven.Raven()
+            elif self.tilemap.boss == "scorpion":
+                self.boss = raven.Raven() # TODO
+            elif self.tilemap.boss == "monkey":
+                self.boss = raven.Raven() # TODO
 
     def draw(self):
         self.tilemap.draw(self.screen, self.camera)
         for entity in self.entities:
             entity.draw(self.screen, self.camera)
-        self.player.draw(self.screen, self.camera)
+        self.player.draw(self)
 
     def push_spawn(self, x: int, y: int, tile: Tile):
         self.spawn_stack.append((x, y, tile))
@@ -75,15 +85,14 @@ class Game:
         self.start(LEVEL[self.level])
 
     def update(self, dt):
+        # update input manager
+        self.input.mouse(self.camera)
+        for e in event.get():
+            self.input.event(e)
+            if e.type == QUIT:
+                exit()
+                quit()
         if self.state == GameState.Game:
-            # update input manager
-            self.input.mouse(self.camera)
-            for e in event.get():
-                self.input.event(e)
-                if e.type == QUIT:
-                    exit()
-                    quit()
-
             self.player.update(dt, self)
             self.tilemap.update(dt, self)
             for spawn in self.spawn_stack:

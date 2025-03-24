@@ -4,7 +4,7 @@ from entities.entity import Entity
 
 class Explosion(Entity):
 
-    def __init__(self, game, rect):
+    def __init__(self, rect):
         super().__init__(Rect(0, 0, TILE_SIZE / 2, TILE_SIZE / 2))
         self.rect = rect
         self.timer = 0.2

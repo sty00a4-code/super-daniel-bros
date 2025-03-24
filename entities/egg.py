@@ -22,8 +22,6 @@ class Egg(Entity):
                 self.hit = True
         # delete if hit something
         if self.hit:
-            test = Explosion(game, self.rect)
-            game.entities.append(test)
             self.destroy(game)
 
     def collide(self, game):

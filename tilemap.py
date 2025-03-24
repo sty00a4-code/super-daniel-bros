@@ -50,6 +50,7 @@ class TileMap:
         self.tiles = []
         self.background_tiles = []
         self.spawn = (0, 0)
+        self.boss = None
         # copy over everything
         for y in range(height):
             self.background_tiles.append([])
@@ -240,6 +241,7 @@ if __name__ == "__main__":
     selected = 1
     camera = Vector2(0, 0)
     move = Vector2(0, 0)
+    boss_button = False
     while True:
         dt = clock.tick(FPS) / 1000
         left, middle, right = mouse.get_pressed(3)
@@ -267,6 +269,14 @@ if __name__ == "__main__":
                     move.x = 1
                 elif e.key == K_e:
                     tilemap.spawn = (tile_pos.x, tile_pos.y)
+                elif e.key == K_b:
+                    boss_button = True
+                elif e.key == K_1 and boss_button:
+                    tilemap.boss = "raven"
+                elif e.key == K_2 and boss_button:
+                    tilemap.boss = "scorpion"
+                elif e.key == K_3 and boss_button:
+                    tilemap.boss = "monkey"
             elif e.type == KEYUP:
                 if e.key == K_s and move.y > 0:
                     move.y = 0

@@ -5,7 +5,9 @@ from player_module.health import Health
 from tilemap import *
 from entities.entity import Entity
 from entities.egg import Egg
+from entities.bomb import Bomb
 from animation import load_animations
+from game_state import GameState
 
 PLAYER_SPEED = 60
 PLAYER_FRICTION = 40
@@ -36,6 +38,7 @@ class Player(Entity):
         self.acc = 0
         self.health = Health(3)
         self.damage_timer = 0
+        self.upgrades = set()
 
     def start(self, tilemap: TileMap):
         # spawn in tilemap
@@ -51,6 +54,7 @@ class Player(Entity):
         self.acc = 0
         self.health.reset()
         self.damage_timer = 0
+        self.upgrades = set()
 
     def update(self, dt: float, game):
         last_state = self.state  # remember state
@@ -159,6 +163,10 @@ class Player(Entity):
             else:
                 self.charge = 0
 
+    def handle_attack(self, game):
+        if game.input.attack:
+            self.state = State.Attack
+
     def handle_jump_and_glide(self, game):
         # move without changing to walk state
         acc = 0
@@ -226,19 +234,25 @@ class Player(Entity):
         self.charge = 0
 
     def egg(self, game):
-        return Egg()
+        if "bomb" in self.upgrades:
+            return Bomb()
+        else:
+            return Egg()
+    
+    def upgrade(self, name: str):
+        self.upgrades.add(name)
 
-    def draw(self, screen: Surface, camera: Vector2, debug=False):
+    def draw(self, game, debug=False):
         rect = Rect(
-            self.rect.left - camera.x - TILE_SIZE / 2,
-            self.rect.top - camera.y - TILE_SIZE,
+            self.rect.left - game.camera.x - TILE_SIZE / 2,
+            self.rect.top - game.camera.y - TILE_SIZE,
             self.rect.w,
             self.rect.h,
         )
         img = transform.flip(self.animations.sprite(), self.dir == -1, False)
-        if self.health.health == 0 or not (
+        if game.state != GameState.Game or not (
             self.damage_timer <= PLAYER_DAMAGE_COOLDOWN and bool(t() // 50_000_000 % 2)
         ):
-            screen.blit(img, rect)
+            game.screen.blit(img, rect)
         if debug:
-            draw.rect(screen, Color(255, 255, 255, 255 // 2), rect, width=1)
+            draw.rect(game.screen, Color(255, 255, 255, 255 // 2), rect, width=1)

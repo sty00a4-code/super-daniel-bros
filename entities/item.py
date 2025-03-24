@@ -13,7 +13,7 @@ class Item(Entity):
 
     def update(self, dt, game):
         if game.player.rect.colliderect(self.rect):
-            # TODO: item
+            game.player.upgrade(self.name)
             self.destroy(game)
 
     def draw(self, screen, camera):

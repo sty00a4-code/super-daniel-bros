@@ -58,7 +58,8 @@ class Entity:
         pass
 
     def destroy(self, game):
-        game.entities.remove(self)
+        if self in game.entities:
+            game.entities.remove(self)
 
     def collide(self, game):
         if self.rect.left < 0:
