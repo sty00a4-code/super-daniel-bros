@@ -10,6 +10,7 @@ LEVEL = ["test"]
 GOAL_TIME = 1
 DEAD_TIME = 1
 
+
 class Game:
     def __init__(self, screen: Surface):
         self.screen = screen
@@ -24,7 +25,7 @@ class Game:
         self.scene = None
         self.timer = 0
         self.start(LEVEL[self.level])
-    
+
     def start(self, name):
         print(f"[LOADED] {name}")
         self.tilemap = load_map(name)
@@ -43,7 +44,7 @@ class Game:
 
     def push_spawn(self, x: int, y: int, tile: Tile):
         self.spawn_stack.append((x, y, tile))
-    
+
     def spawn(self, x: int, y: int, tile: Tile):
         entity = None
         if TILE_DATA[tile].name in COLLECTIBLES:
@@ -59,21 +60,20 @@ class Game:
         entity.rect.y = y * TILE_SIZE
         self.entities.append(entity)
         print(f"[SPAWNED] {entity.__class__}")
-    
+
     def goal(self):
         self.state = GameState.Goal
-    
+
     def dead(self):
-        print(1)
         self.state = GameState.Dead
-    
+
     def next_level(self):
         self.level += 1
         if self.level >= len(LEVEL):
             quit()
             exit()
         self.start(LEVEL[self.level])
-    
+
     def update(self, dt):
         if self.state == GameState.Game:
             # update input manager
@@ -83,7 +83,7 @@ class Game:
                 if e.type == QUIT:
                     exit()
                     quit()
-            
+
             self.player.update(dt, self)
             self.tilemap.update(dt, self)
             for spawn in self.spawn_stack:

@@ -1,6 +1,7 @@
 from settings import *
 from pygame import *
 from player_module.state import State
+from player_module.health import Health
 from tilemap import *
 from entities.entity import Entity
 from entities.egg import Egg
@@ -13,6 +14,8 @@ PLAYER_JUMP = 420
 PLAYER_LEAP_TIME = 0.1
 PLAYER_GLIDE_VEL = 100
 PLAYER_THROW_DELAY = 0.25
+PLAYER_DAMAGE_COOLDOWN = 0.5
+PLAYER_KNOCKBACK = 500
 
 class Player(Entity):
     """Main player class"""
@@ -30,16 +33,29 @@ class Player(Entity):
         self.charge = 0  # how long the throw button is held
         self.score = dict()
         self.acc = 0
+        self.health = Health(3)
+        self.damage_timer = 0
 
     def start(self, tilemap: TileMap):
         # spawn in tilemap
         self.rect.x = tilemap.spawn[0] * TILE_SIZE
         self.rect.y = tilemap.spawn[1] * TILE_SIZE
+        self.vel = Vector2(0, 0)  # velocity for physics
+        self.state = State.Idle
+        self.air_time = 0  # how long in the air
+        self.dir = 1  # facing direction
+        self.throw_time = 0  # how long since the last time thrown
+        self.charge = 0  # how long the throw button is held
+        self.score = dict()
+        self.acc = 0
+        self.health.reset()
+        self.damage_timer = 0
 
     def update(self, dt: float, game):
         last_state = self.state  # remember state
         self.air_time += dt
         self.throw_time += dt
+        self.damage_timer += dt
 
         self.animations.update(dt)
         self.update_ground_state()
@@ -96,6 +112,14 @@ class Player(Entity):
         # state changed, reset time
         if last_state != self.state:
             self.animations.play(self.state.value)
+    
+    def damage(self, game, entity, damage: int = 1):
+        if self.damage_timer >= PLAYER_DAMAGE_COOLDOWN:
+            if self.health.damage(damage):
+                game.dead()
+            self.damage_timer = 0
+            self.vel.x = PLAYER_KNOCKBACK if self.rect.centerx > entity.rect.centerx else -PLAYER_KNOCKBACK
+            self.vel.y = -PLAYER_KNOCKBACK * 1.5
     
     def check_goal(self, game):
         (cx, cy) = (self.rect.centerx, self.rect.centery)
@@ -205,6 +229,7 @@ class Player(Entity):
             self.rect.h,
         )
         img = transform.flip(self.animations.sprite(), self.dir == -1, False)
-        screen.blit(img, rect)
+        if self.health.health == 0 or not (self.damage_timer <= PLAYER_DAMAGE_COOLDOWN and bool(t() // 50_000_000 % 2)):
+            screen.blit(img, rect)
         if debug:
             draw.rect(screen, Color(255, 255, 255, 255 // 2), rect, width=1)

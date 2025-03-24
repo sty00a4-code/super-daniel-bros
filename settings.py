@@ -8,6 +8,7 @@ COLLECTIBLES = {
 }
 ITEMS = ["tabasco", "bomb"]
 
+
 # special tile data
 class TileData:
     def __init__(
@@ -23,6 +24,8 @@ class TileData:
         self.action = action
         self.collectible = collectible
         self.spawn = spawn
+
+
 default = TileData()  # no data
 # tile data for every tile id
 TILE_DATA = [
@@ -44,5 +47,4 @@ TILE_DATA = [
     TileData(name="rat", spawn=True),
     TileData(name="sand_2", solid=True),
     TileData(name="sandstone", solid=True),
-    TileData(name="treibsand", solid=False,collectible=True),
 ]
