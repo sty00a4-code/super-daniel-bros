@@ -1,7 +1,6 @@
 from settings import *
 from pygame import *
 from tilemap import *
-from player_module.player import Input, Player
 from entities import *
 from game import Game
 

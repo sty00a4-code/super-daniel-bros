@@ -1,5 +1,4 @@
 from settings import *
-import pygame as pg
 from pygame import *
 from tilemap import TILE_DATA, Tile
 
