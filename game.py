@@ -125,3 +125,5 @@ class Game:
             self.camera.y = self.tilemap.height * TILE_SIZE - self.screen.get_height()
         self.camera.x = int(self.camera.x)
         self.camera.y = int(self.camera.y)
+        
+        self.input.reset()

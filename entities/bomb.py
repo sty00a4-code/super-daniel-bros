@@ -12,8 +12,7 @@ class Bomb(Egg):
         super().__init__()
 
     def destroy(self, game):
-        explosion = Explosion(self.rect)
-        game.entities.append(explosion)
+        game.entities.append(self.persisten_entity_factory(game))
         super().destroy(game)
 
     def draw(self, screen, camera):

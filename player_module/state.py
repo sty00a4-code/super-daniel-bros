@@ -5,5 +5,7 @@ class State(Enum):
     Walk = "walk"
     Jump = "jump"
     Glide = "glide"
-    Attack = "attack"
+    Attack1 = "attack-1"
+    Attack2 = "attack-2"
+    Attack3 = "attack-3"
     Throw = "throw"

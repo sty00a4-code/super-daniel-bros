@@ -25,6 +25,9 @@ class Input:
         self.cursor.x = mouse_pos[0] / 2 + camera.x
         self.cursor.y = mouse_pos[1] / 2 + camera.y
 
+    def reset(self):
+        self.attack = False
+
     def event(self, event: event.Event):
         if event.type in [KEYDOWN, KEYUP]:
             if event.key == K_a:

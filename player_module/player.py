@@ -18,6 +18,8 @@ PLAYER_GLIDE_VEL = 100
 PLAYER_THROW_DELAY = 0.25
 PLAYER_DAMAGE_COOLDOWN = 0.5
 PLAYER_KNOCKBACK = 500
+PLAYER_ATTACK_DELAY = 0.05
+PLAYER_ATTACK_OFF_DELAY = 0.15
 
 
 class Player(Entity):
@@ -39,6 +41,7 @@ class Player(Entity):
         self.health = Health(3)
         self.damage_timer = 0
         self.upgrades = set()
+        self.attack_timer = PLAYER_ATTACK_DELAY
 
     def start(self, tilemap: TileMap):
         # spawn in tilemap
@@ -61,6 +64,7 @@ class Player(Entity):
         self.air_time += dt
         self.throw_time += dt
         self.damage_timer += dt
+        self.attack_timer += dt
 
         self.animations.update(dt)
         self.update_ground_state()
@@ -68,8 +72,13 @@ class Player(Entity):
         acc = 0
         if self.state == State.Throw:
             self.handle_throw(game, dt)
+        elif self.state in [State.Attack1, State.Attack2, State.Attack3]:
+            self.handle_attack(game)
+            if self.attack_timer >= PLAYER_ATTACK_OFF_DELAY:
+                self.state = State.Idle
         elif self.state in [State.Idle, State.Walk]:
             self.handle_walk_and_idle(game)
+            self.handle_attack(game)
         elif self.state in [State.Jump, State.Glide]:
             self.handle_throw_glide(game)
             self.handle_jump_and_glide(game)
@@ -165,7 +174,15 @@ class Player(Entity):
 
     def handle_attack(self, game):
         if game.input.attack:
-            self.state = State.Attack
+            if self.state in [State.Idle, State.Walk]:
+                self.state = State.Attack1
+            elif self.state == State.Attack1 and self.attack_timer >= PLAYER_ATTACK_DELAY:
+                self.state = State.Attack2
+            elif self.state == State.Attack2 and self.attack_timer >= PLAYER_ATTACK_DELAY:
+                self.state = State.Attack3
+            elif self.state == State.Attack3 and self.attack_timer >= PLAYER_ATTACK_DELAY:
+                self.state = State.Attack1
+            self.attack_timer = 0
 
     def handle_jump_and_glide(self, game):
         # move without changing to walk state
