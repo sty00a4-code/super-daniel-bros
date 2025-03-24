@@ -182,6 +182,7 @@ class Player(Entity):
                 self.state = State.Attack3
             elif self.state == State.Attack3 and self.attack_timer >= PLAYER_ATTACK_DELAY:
                 self.state = State.Attack1
+            self.vel.x = self.dir * PLAYER_SPEED * 20
             self.attack_timer = 0
 
     def handle_jump_and_glide(self, game):
