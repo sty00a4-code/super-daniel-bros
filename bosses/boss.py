@@ -5,6 +5,7 @@ class Boss:
     def __init__(self):
         self.rect = Rect(0, 0, TILE_SIZE, TILE_SIZE)
         self.vel = Vector2(0, 0)
+        self.dir = 1
     def start(self, game):
         pass
     def update(self, dt: float, game):

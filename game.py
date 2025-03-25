@@ -5,7 +5,7 @@ from player_module.input import Input
 from tilemap import load_map, TILE_SIZE, TILE_DATA, Tile
 from entities import rat, collectible, item
 from game_state import GameState
-from bosses import raven
+from bosses import raven, gorilla
 
 LEVEL = ["grass"]
 GOAL_TIME = 1
@@ -43,8 +43,8 @@ class Game:
                 self.boss = raven.Raven()
             elif self.tilemap.boss == "scorpion":
                 self.boss = raven.Raven() # TODO
-            elif self.tilemap.boss == "monkey":
-                self.boss = raven.Raven() # TODO
+            elif self.tilemap.boss == "gorilla":
+                self.boss = gorilla.Gorilla() # TODO
 
     def draw(self):
         self.tilemap.draw(self.screen, self.camera)
