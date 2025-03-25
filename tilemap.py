@@ -34,6 +34,9 @@ class Tile:
         """
         self.data[key] = value
 
+BACKGROUNDS = [
+    image.load("assets/backgrounds/background_1.png"),
+]
 
 # load tile sprites
 TILE_ASSETS = dict()
@@ -49,6 +52,7 @@ class TileMap:
     def __init__(self, tiles: list[list[int]], width, height):
         self.tiles = []
         self.background_tiles = []
+        self.background = 0
         self.spawn = (0, 0)
         self.boss = None
         # copy over everything
@@ -151,6 +155,7 @@ class TileMap:
                     self.set(x, y, 0)
 
     def draw(self, surface: Surface, camera: Vector2, debug=False):
+        surface.blit(BACKGROUNDS[self.background], (0, 0))
         start = camera / TILE_SIZE
         (width, height) = surface.get_size()
         end = start + Vector2(width, height) / TILE_SIZE
