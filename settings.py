@@ -48,4 +48,5 @@ TILE_DATA = [
     TileData(name="sand_2", solid=True),
     TileData(name="sandstone", solid=True),
     TileData(name="bomb", spawn=True),
+    TileData(name="newback",solid=True)
 ]
