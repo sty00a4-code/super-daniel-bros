@@ -296,7 +296,7 @@ if __name__ == "__main__":
                         current_tile = id(TILE_EDITOR[category][selected])
                 elif e.key == K_3:
                     if boss_button:
-                        tilemap.boss = "monkey"
+                        tilemap.boss = "gorilla"
                         boss_button = False
                     else:
                         category = 2

@@ -60,13 +60,23 @@ class Player(Entity):
         self.upgrades = set()
 
     def update(self, dt: float, game):
+        if game.state == GameState.Scene:
+            if self.grounded:
+                if self.vel.x > PLAYER_FRICTION:
+                    self.vel.x -= PLAYER_FRICTION
+                elif self.vel.x < -PLAYER_FRICTION:
+                    self.vel.x += PLAYER_FRICTION
+                else:
+                    self.vel.x = 0
+            return super().update(dt, game)
         last_state = self.state  # remember state
+        self.animations.update(dt)
+        
         self.air_time += dt
         self.throw_time += dt
         self.damage_timer += dt
         self.attack_timer += dt
 
-        self.animations.update(dt)
         self.update_ground_state()
 
         acc = 0
@@ -210,6 +220,9 @@ class Player(Entity):
             self.state = State.Idle
 
         # apply to velocity
+        self.move(acc)
+    
+    def move(self, acc: float):
         self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
 
     def handle_throw(self, game, dt):

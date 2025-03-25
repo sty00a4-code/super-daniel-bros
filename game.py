@@ -1,3 +1,4 @@
+import scenes.gorilla
 from settings import *
 from pygame import *
 from player_module.player import Player
@@ -6,8 +7,10 @@ from tilemap import load_map, TILE_SIZE, TILE_DATA, Tile
 from entities import rat, collectible, item
 from game_state import GameState
 from bosses import raven, gorilla
+from scenes.scene import Scene
+import scenes
 
-LEVEL = ["grass"]
+LEVEL = ["grass", "gorilla"]
 GOAL_TIME = 1
 DEAD_TIME = 1
 
@@ -23,7 +26,7 @@ class Game:
         self.state = GameState.Game
         self.entities = []
         self.spawn_stack = []
-        self.scene = 0
+        self.scene = None
         self.timer = 0
         self.boss = None
         self.start(LEVEL[self.level])
@@ -35,7 +38,7 @@ class Game:
         self.state = GameState.Game
         self.entities = []
         self.spawn_stack = []
-        self.scene = 0
+        self.scene: Scene = None
         self.timer = 0
         if self.tilemap.boss is not None:
             self.state = GameState.Scene
@@ -44,10 +47,13 @@ class Game:
             elif self.tilemap.boss == "scorpion":
                 self.boss = raven.Raven() # TODO
             elif self.tilemap.boss == "gorilla":
-                self.boss = gorilla.Gorilla() # TODO
+                self.boss = gorilla.Gorilla()
+                self.scene = scenes.gorilla.scene
 
     def draw(self):
         self.tilemap.draw(self.screen, self.camera)
+        if self.boss is not None:
+            self.boss.draw(self.screen, self.camera)
         for entity in self.entities:
             entity.draw(self.screen, self.camera)
         self.player.draw(self)
@@ -101,9 +107,15 @@ class Game:
             self.spawn_stack.clear()
             for entity in self.entities:
                 entity.update(dt, self)
+            if self.boss is not None:
+                self.boss.update(dt, self)
             # update camera
             self.camera.x = self.player.rect.centerx - self.screen.get_width() / 2
             self.camera.y = self.player.rect.centery - self.screen.get_height() / 2
+        elif self.state == GameState.Scene:
+            self.scene.update(dt, self)
+            if self.scene.index >= len(self.scene.actions):
+                self.state = GameState.Game
         elif self.state == GameState.Goal:
             self.player.update(dt, self)
             if self.timer < GOAL_TIME:

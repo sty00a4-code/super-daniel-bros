@@ -65,6 +65,7 @@ TILE_DATA = [
     TileData(name="bomb", spawn=True),
     TileData(name="egg_gold", spawn=True),
     TileData(name="rat", spawn=True),
+    TileData(name="cactus_middle", solid=True),
 ]
 TILE_EDITOR = [
     # 1
@@ -74,7 +75,7 @@ TILE_EDITOR = [
     # 3
     ["box_full", "box_left", "box_right", "flag", "spike", "water_light",],
     # 4
-    ["sand", "sandstone", "treibsand", "cactus",],
+    ["sand", "sandstone", "treibsand", "cactus", "cactus_middle"],
     # 5
     ["bread", "raspberry", "cherries", "tabasco", "bomb", "egg_gold",],
     # 6

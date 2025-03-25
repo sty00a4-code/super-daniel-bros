@@ -9,3 +9,6 @@ class State(Enum):
     Attack2 = "attack-2"
     Attack3 = "attack-3"
     Throw = "throw"
+    Pos1 = "pos1"
+    Pos2 = "pos2"
+    Pos3 = "pos3"

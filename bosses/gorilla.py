@@ -2,6 +2,8 @@ from bosses.boss import Boss
 from enum import Enum
 from animation import load_animations
 from player_module.health import Health
+from game_state import GameState
+from pygame import *
 
 
 class GorillaBossState(Enum):
@@ -18,9 +20,15 @@ class GorillaState(Enum):
     HoldBarrel = "hold_barrel"
     Smash = "smash"
     Stunned = "stunned"
-    Jump = "Jump"
+    Challenge = "challenge"
+    Wait = "wait"
+    Jump = "jump"
+    Pos1 = "pos1"
+    Pos2 = "pos2"
+    Pos3 = "pos3"
 
 
+GORILLA_SPEED = 60
 GORILLA_IDLE_TIME = 3
 GORILLA_JUMP_TIME = 3
 GORILLA_SMASH_TIME = 5
@@ -37,6 +45,7 @@ GORILLA_STATES = [
 class Gorilla(Boss):
     def __init__(self):
         super().__init__()
+        self.rect = Rect(0, 0, 64 - 20, 32)
         self.health = Health(20)
         self.boss_state = GorillaBossState.Idle
         self.state = GorillaState.Idle
@@ -46,7 +55,10 @@ class Gorilla(Boss):
         self.animations = load_animations("gorilla")
 
     def update(self, dt, game):
+        if game.state == GameState.Scene:
+            return super().update(dt, game)
         last_state = self.state
+        self.animations.update(dt)
 
         self.state_timer += dt
 
@@ -61,8 +73,20 @@ class Gorilla(Boss):
         elif self.boss_state == GorillaBossState.Smash:
             self.handle_smash(dt, game)
 
+        super().update(dt, game)
         if last_state != self.state:
             self.animations.play(self.state.value)
+    
+    def move(self, acc: float):
+        self.vel.x += acc * GORILLA_SPEED
+
+    def draw(self, screen, camera):
+        rect = Rect(
+            self.rect.x - camera.x - 10, self.rect.y - camera.y - 32, self.rect.w, self.rect.h
+        )
+        img = self.animations.sprite()
+        screen.blit(img, rect)
+        super().draw(screen, camera)
 
     def handle_stunned(self, dt, game):
         if self.state_timer < GORILLA_STUNNED_TIME:
