@@ -282,6 +282,20 @@ if __name__ == "__main__":
                     tilemap.boss = "scorpion"
                 elif e.key == K_3 and boss_button:
                     tilemap.boss = "monkey"
+                elif e.key == K_UP:
+                    tilemap.tiles.pop()
+                    tilemap.height -= 1
+                elif e.key == K_LEFT:
+                    for y, row in enumerate(tilemap.tiles):
+                        tilemap.tiles[y].pop()
+                    tilemap.width -= 1
+                elif e.key == K_DOWN:
+                    tilemap.tiles.pop(0)
+                    tilemap.height -= 1
+                elif e.key == K_RIGHT:
+                    for y, row in enumerate(tilemap.tiles):
+                        tilemap.tiles[y].pop(0)
+                    tilemap.width -= 1
             elif e.type == KEYUP:
                 if e.key == K_s and move.y > 0:
                     move.y = 0

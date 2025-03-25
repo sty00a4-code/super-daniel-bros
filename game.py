@@ -102,6 +102,7 @@ class Game:
                 entity.update(dt, self)
             # update camera
             self.camera.x = self.player.rect.centerx - self.screen.get_width() / 2
+            self.camera.y = self.player.rect.centery - self.screen.get_height() / 2
         elif self.state == GameState.Goal:
             self.player.update(dt, self)
             if self.timer < GOAL_TIME:
