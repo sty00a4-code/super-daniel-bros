@@ -72,6 +72,7 @@ class Entity:
         if self.rect.bottom > game.tilemap.height * TILE_SIZE:
             self.rect.bottom = game.tilemap.height * TILE_SIZE
             self.vel.y = 0
+            self.destroy(game)
         # bottom
         if self.vel.y > 0:
             (cx, cy) = (self.rect.centerx, self.rect.bottom)
