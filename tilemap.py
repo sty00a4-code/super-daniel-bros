@@ -167,14 +167,7 @@ class TileMap:
                 pos = (
                     Vector2(x * TILE_SIZE, y * TILE_SIZE) - camera
                 )  # position relative to the camera
-                if tile == 2 and debug:  # goal tile
-                    draw.rect(
-                        surface,
-                        Color(0, 255, 0),
-                        Rect(pos.x, pos.y, TILE_SIZE, TILE_SIZE),
-                        width=2,
-                    )
-                elif TILE_DATA[tile].name is not None:  # tile exists
+                if TILE_DATA[tile].name is not None:  # tile exists
                     img = TILE_ASSETS[TILE_DATA[tile].name]  # get image
                     if img is not None:
                         # item tiles move up and down
@@ -241,9 +234,17 @@ if __name__ == "__main__":
         (font.render("[RMB] delete", True, "black"), (0, 14)),
         (font.render("[WHEEL] pick", True, "black"), (0, 14 * 2)),
         (font.render("[E] player spawn", True, "black"), (0, 14 * 3)),
+        (font.render("[B+n] select boss number n", True, "black"), (0, 14 * 4)),
     ]
 
-    selected = 1
+    category = 0
+    selected = 0
+    current_tile = 0
+    def id(name: str) -> int:
+        for i, data in enumerate(TILE_DATA):
+            if data.name == name:
+                return i
+        return 0
     camera = Vector2(0, 0)
     move = Vector2(0, 0)
     boss_button = False
@@ -256,9 +257,10 @@ if __name__ == "__main__":
             if e.type == MOUSEWHEEL:
                 selected -= e.y
                 if selected < 0:
-                    selected = len(TILE_DATA) - 1
-                elif selected > len(TILE_DATA) - 1:
+                    selected = len(TILE_EDITOR[category]) - 1
+                elif selected > len(TILE_EDITOR[category]) - 1:
                     selected = 0
+                current_tile = id(TILE_EDITOR[category][selected])
             elif e.type == KEYDOWN:
                 if e.key == K_s:
                     if e.mod & pg.KMOD_LCTRL:
@@ -276,12 +278,42 @@ if __name__ == "__main__":
                     tilemap.spawn = (tile_pos.x, tile_pos.y)
                 elif e.key == K_b:
                     boss_button = True
-                elif e.key == K_1 and boss_button:
-                    tilemap.boss = "raven"
-                elif e.key == K_2 and boss_button:
-                    tilemap.boss = "scorpion"
-                elif e.key == K_3 and boss_button:
-                    tilemap.boss = "monkey"
+                elif e.key == K_1:
+                    if boss_button:
+                        tilemap.boss = "raven"
+                        boss_button = False
+                    else:
+                        category = 0
+                        selected = 0
+                        current_tile = id(TILE_EDITOR[category][selected])
+                elif e.key == K_2:
+                    if boss_button:
+                        tilemap.boss = "scorpion"
+                        boss_button = False
+                    else:
+                        category = 1
+                        selected = 0
+                        current_tile = id(TILE_EDITOR[category][selected])
+                elif e.key == K_3:
+                    if boss_button:
+                        tilemap.boss = "monkey"
+                        boss_button = False
+                    else:
+                        category = 2
+                        selected = 0
+                        current_tile = id(TILE_EDITOR[category][selected])
+                elif e.key == K_4:
+                    category = 3
+                    selected = 0
+                    current_tile = id(TILE_EDITOR[category][selected])
+                elif e.key == K_5:
+                    category = 4
+                    selected = 0
+                    current_tile = id(TILE_EDITOR[category][selected])
+                elif e.key == K_6:
+                    category = 5
+                    selected = 0
+                    current_tile = id(TILE_EDITOR[category][selected])
                 elif e.key == K_UP:
                     tilemap.tiles.pop()
                     tilemap.height -= 1
@@ -312,13 +344,13 @@ if __name__ == "__main__":
         if middle:
             tile = tilemap.get(int(tile_pos.x), int(tile_pos.y))
             if tile is Tile:
-                selected = tile.tile
+                current_tile = tile.tile
             else:
-                selected = tile
+                current_tile = tile
         if left or right:
             tilemap.extend_height(int(tile_pos.y) + 1)
             tilemap.extend_width(int(tile_pos.x) + 1)
-            tilemap.set(int(tile_pos.x), int(tile_pos.y), selected if left else 0)
+            tilemap.set(int(tile_pos.x), int(tile_pos.y), current_tile if left else 0)
 
         camera += move * 500 * dt
         camera.x = int(camera.x)
@@ -327,7 +359,7 @@ if __name__ == "__main__":
         screen.fill("cyan")
         # Draw Start
         tilemap.draw(screen, camera, debug=True)
-        name = TILE_DATA[selected].name
+        name = TILE_DATA[current_tile].name
         if name is not None:
             img: Surface = TILE_ASSETS[name].copy()
             img.set_alpha(255 / 2)

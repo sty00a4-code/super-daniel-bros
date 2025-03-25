@@ -7,7 +7,7 @@ from entities import rat, collectible, item
 from game_state import GameState
 from bosses import raven
 
-LEVEL = ["test"]
+LEVEL = ["grass"]
 GOAL_TIME = 1
 DEAD_TIME = 1
 
@@ -88,7 +88,8 @@ class Game:
         # update input manager
         self.input.mouse(self.camera)
         for e in event.get():
-            self.input.event(e)
+            if self.state == GameState.Game:
+                self.input.event(e)
             if e.type == QUIT:
                 exit()
                 quit()
