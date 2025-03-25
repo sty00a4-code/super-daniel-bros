@@ -7,7 +7,7 @@ from entities import rat, collectible, item
 from game_state import GameState
 from bosses import raven
 
-LEVEL = ["test", "raven"]
+LEVEL = ["test"]
 GOAL_TIME = 1
 DEAD_TIME = 1
 
