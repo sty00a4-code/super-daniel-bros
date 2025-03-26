@@ -73,6 +73,8 @@ TILE_DATA = [
     TileData(name="bambusmid", solid=False),
     TileData(name="bambustop", solid=False),
     TileData(name="mud", solid=False),
+    TileData(name="schrift",solid=True),
+    TileData(name="fake_dirt",solid=False),
     ]
 TILE_EDITOR = [
     # 1
@@ -106,6 +108,8 @@ TILE_EDITOR = [
         "flag",
         "spike",
         "water_light",
+        "schrift",
+        "fake_dirt",
     ],
     # 4
     ["sand", "sandstone", "treibsand", "cactus", "cactus_middle"],
