@@ -142,11 +142,12 @@ class Player(Entity):
             if self.health.damage(damage):
                 game.dead()
             self.damage_timer = 0
-            self.vel.x = (
-                PLAYER_KNOCKBACK
-                if self.rect.centerx > entity.rect.centerx
-                else -PLAYER_KNOCKBACK
-            )
+            if entity is not None:
+                self.vel.x = (
+                    PLAYER_KNOCKBACK
+                    if self.rect.centerx > entity.rect.centerx
+                    else -PLAYER_KNOCKBACK
+                )
             self.vel.y = -PLAYER_KNOCKBACK * 1.5
 
     def check_goal(self, game):
@@ -158,6 +159,9 @@ class Player(Entity):
         if TILE_DATA[tile].action == "goal":
             if self.rect.colliderect(c):
                 game.goal()
+        if TILE_DATA[tile].action == "hurt":
+            if self.rect.colliderect(c):
+                self.damage(game, None)
 
     def update_ground_state(self):
         if self.grounded:
