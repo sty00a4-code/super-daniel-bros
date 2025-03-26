@@ -12,3 +12,7 @@ class State(Enum):
     Pos1 = "pos1"
     Pos2 = "pos2"
     Pos3 = "pos3"
+
+PLAYER_ATTACK_STATES = [State.Attack1, State.Attack2, State.Attack3]
+PLAYER_WALK_IDLE = [State.Idle, State.Walk]
+PLAYER_POS_STATES = [State.Pos1, State.Pos2, State.Pos3]
