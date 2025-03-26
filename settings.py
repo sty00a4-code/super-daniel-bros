@@ -36,7 +36,7 @@ TILE_DATA = [
     TileData(name="grass_right", solid=True),
     TileData(name="spike", action="hurt"),
     TileData(name="water_light", action="dead"),
-    TileData(name="flag",action="goal"),
+    TileData(name="flag", action="goal"),
     TileData(name="box_full", solid=True),
     TileData(name="box_left", solid=True),
     TileData(name="box_right", solid=True),
@@ -73,20 +73,63 @@ TILE_DATA = [
     TileData(name="bambusmid", solid=True),
     TileData(name="bambustop", solid=True),
     TileData(name="mud", solid=True),
-    ]
+]
 TILE_EDITOR = [
     # 1
-    ["dirt", "grass_left", "grass", "grass_right", "stone", "stone_slab", "plant", "bush",],
+    [
+        "dirt",
+        "grass_left",
+        "grass",
+        "grass_right",
+        "stone",
+        "stone_slab",
+        "plant",
+        "bush",
+    ],
     # 2
-    ["marble", "marble_left", "marble_middle", "marble_right", "pillar_top", "pillar", "pillar_bottom", "chiseled_marble", "window_marble"],
+    [
+        "marble",
+        "marble_left",
+        "marble_middle",
+        "marble_right",
+        "pillar_top",
+        "pillar",
+        "pillar_bottom",
+        "chiseled_marble",
+        "window_marble",
+    ],
     # 3
-    ["box_full", "box_left", "box_right", "flag", "spike", "water_light",],
+    [
+        "box_full",
+        "box_left",
+        "box_right",
+        "flag",
+        "spike",
+        "water_light",
+    ],
     # 4
     ["sand", "sandstone", "treibsand", "cactus", "cactus_middle"],
     # 5
-    ["bread", "raspberry", "cherries", "tabasco", "bomb", "egg_gold",],
+    [
+        "bread",
+        "raspberry",
+        "cherries",
+        "tabasco",
+        "bomb",
+        "egg_gold",
+    ],
     # 6
-    ["rat",],
-    #7
-    ["junglgras","jungldirt","mud","junglelog","leaves","bambusmid","bamustop"]
+    [
+        "rat",
+    ],
+    # 7
+    [
+        "junglgras",
+        "jungldirt",
+        "mud",
+        "junglelog",
+        "leaves",
+        "bambusmid",
+        "bamustop",
+    ],
 ]
