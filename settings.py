@@ -56,7 +56,7 @@ TILE_DATA = [
     TileData(name="pillar_bottom"),
     TileData(name="sand", solid=True),
     TileData(name="sandstone", solid=True),
-    TileData(name="treibsand", solid=True),
+    TileData(name="treibsand", solid=False),
     TileData(name="cactus", solid=True),
     TileData(name="bread", spawn=True),
     TileData(name="raspberry", spawn=True),
@@ -70,9 +70,9 @@ TILE_DATA = [
     TileData(name="jungldirt", solid=True),
     TileData(name="junglelog", solid=True),
     TileData(name="leaves", solid=True),
-    TileData(name="bambusmid", solid=True),
-    TileData(name="bambustop", solid=True),
-    TileData(name="mud", solid=True),
+    TileData(name="bambusmid", solid=False),
+    TileData(name="bambustop", solid=False),
+    TileData(name="mud", solid=False),
     ]
 TILE_EDITOR = [
     # 1
@@ -88,5 +88,5 @@ TILE_EDITOR = [
     # 6
     ["rat",],
     #7
-    ["junglgras","jungldirt","mud","junglelog","leaves","bambusmid","bamustop"]
+    ["junglgras","jungldirt","mud","junglelog","leaves","bambusmid","bambustop"]
 ]
