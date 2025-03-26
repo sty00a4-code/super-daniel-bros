@@ -2,6 +2,7 @@ from pygame import *
 from settings import *
 from entities.entity import Entity
 
+
 class Persistent_entities(Entity):
 
     def __init__(self, game, rect: Rect, lifespan: float, update_after_ticks: float):
@@ -11,12 +12,13 @@ class Persistent_entities(Entity):
         self.hitable_entities = []
         self.count_ticks = 0
 
-    
     def update(self, dt: float, game):
-        #super().update(dt, game)
-        if self.count_ticks % self.update_after_ticks == 0 and not (self.update_after_ticks == -1):
+        # super().update(dt, game)
+        if self.count_ticks % self.update_after_ticks == 0 and not (
+            self.update_after_ticks == -1
+        ):
             for entity in game.entities:
-                if(entity.body):
+                if entity.body:
                     self.hitable_entities.append(entity)
 
         for entity in self.hitable_entities:
@@ -27,9 +29,8 @@ class Persistent_entities(Entity):
 
         if self.count_ticks >= self.lifespan:
             self.destroy(game)
-        
-        self.count_ticks +=1
-        
-        
+
+        self.count_ticks += 1
+
     def draw(self, screen, camera):
         pass
