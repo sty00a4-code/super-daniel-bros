@@ -54,7 +54,7 @@ class Gorilla(Boss):
     def __init__(self):
         super().__init__()
         self.rect = Rect(0, 0, 64 - 20, 32)
-        self.health = Health(20)
+        self.health = Health(12)
         self.boss_state = GorillaBossState.Idle
         self.state = GorillaState.Idle
         self.boss_state_index = 0
@@ -75,7 +75,8 @@ class Gorilla(Boss):
 
         self.handle_damage(dt, game)
         if self.health.health <= 0:
-            raise Exception("TODO: Death")
+            game.boss = None
+            game.goal()
 
         # print(self.boss_state.value, self.state.value)
         if self.boss_state == GorillaBossState.Idle:
