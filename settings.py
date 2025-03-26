@@ -66,7 +66,14 @@ TILE_DATA = [
     TileData(name="egg_gold", spawn=True),
     TileData(name="rat", spawn=True),
     TileData(name="cactus_middle", solid=True),
-]
+    TileData(name="junglgras", solid=True),
+    TileData(name="jungldirt", solid=True),
+    TileData(name="junglelog", solid=True),
+    TileData(name="leaves", solid=True),
+    TileData(name="bambusmid", solid=True),
+    TileData(name="bambustop", solid=True),
+    TileData(name="mud", solid=True),
+    ]
 TILE_EDITOR = [
     # 1
     ["dirt", "grass_left", "grass", "grass_right", "stone", "stone_slab", "plant", "bush",],
@@ -80,4 +87,6 @@ TILE_EDITOR = [
     ["bread", "raspberry", "cherries", "tabasco", "bomb", "egg_gold",],
     # 6
     ["rat",],
+    #7
+    ["junglgras","jungldirt","mud","junglelog","leaves","bambusmid","bamustop"]
 ]
