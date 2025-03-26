@@ -314,6 +314,10 @@ if __name__ == "__main__":
                     category = 5
                     selected = 0
                     current_tile = id(TILE_EDITOR[category][selected])
+                elif e.key == K_7:
+                    category = 6
+                    selected = 0
+                    current_tile = id(TILE_EDITOR[category][selected])
                 elif e.key == K_UP:
                     tilemap.tiles.pop()
                     tilemap.height -= 1
