@@ -71,7 +71,7 @@ class Player(Entity):
             return super().update(dt, game)
         last_state = self.state  # remember state
         self.animations.update(dt)
-        
+
         self.air_time += dt
         self.throw_time += dt
         self.damage_timer += dt
@@ -186,11 +186,17 @@ class Player(Entity):
         if game.input.attack:
             if self.state in [State.Idle, State.Walk]:
                 self.state = State.Attack1
-            elif self.state == State.Attack1 and self.attack_timer >= PLAYER_ATTACK_DELAY:
+            elif (
+                self.state == State.Attack1 and self.attack_timer >= PLAYER_ATTACK_DELAY
+            ):
                 self.state = State.Attack2
-            elif self.state == State.Attack2 and self.attack_timer >= PLAYER_ATTACK_DELAY:
+            elif (
+                self.state == State.Attack2 and self.attack_timer >= PLAYER_ATTACK_DELAY
+            ):
                 self.state = State.Attack3
-            elif self.state == State.Attack3 and self.attack_timer >= PLAYER_ATTACK_DELAY:
+            elif (
+                self.state == State.Attack3 and self.attack_timer >= PLAYER_ATTACK_DELAY
+            ):
                 self.state = State.Attack1
             self.vel.x = self.dir * PLAYER_SPEED * 20
             self.attack_timer = 0
@@ -221,7 +227,7 @@ class Player(Entity):
 
         # apply to velocity
         self.move(acc)
-    
+
     def move(self, acc: float):
         self.vel.x += acc * (PLAYER_SPEED if self.grounded else PLAYER_SPEED / 4)
 
@@ -263,14 +269,13 @@ class Player(Entity):
         game.entities.append(egg)
         self.throw_time = 0
         self.charge = 0
-    
 
     def egg_factory(self, game):
         if "bomb" in self.upgrades:
             return Bomb()
         else:
             return Egg()
-    
+
     def upgrade(self, name: str):
         self.upgrades.add(name)
 

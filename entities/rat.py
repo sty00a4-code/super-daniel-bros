@@ -62,13 +62,13 @@ class Rat(Entity):
                     self.state = RatState.Walk
 
             self.collide_bodies(dt, game)
-            
+
             if self.state != RatState.Charge:
                 if self.wall_left:
                     self.dir = 1
                 elif self.wall_right:
                     self.dir = -1
-        
+
         self.collide_player(dt, game)
 
         super().update(dt, game)
@@ -83,19 +83,24 @@ class Rat(Entity):
             if entity.body:
                 if self.rect.colliderect(entity.rect):
                     self.repell(entity)
+
     def collide_player(self, dt: float, game):
         if self.rect.colliderect(game.player.rect):
             self.repell(game.player)
-            if game.player.rect.bottom > self.rect.top and (game.player.state not in [
-                State.Attack1,
-                State.Attack2,
-                State.Attack3,
-            ] or not (
-                self.rect.centerx > game.player.rect.centerx
-                and game.player.dir > 0
-                or self.rect.centerx < game.player.rect.centerx
-                and game.player.dir < 0
-            )):
+            if game.player.rect.bottom > self.rect.top and (
+                game.player.state
+                not in [
+                    State.Attack1,
+                    State.Attack2,
+                    State.Attack3,
+                ]
+                or not (
+                    self.rect.centerx > game.player.rect.centerx
+                    and game.player.dir > 0
+                    or self.rect.centerx < game.player.rect.centerx
+                    and game.player.dir < 0
+                )
+            ):
                 if self.state != RatState.Stunned:
                     game.player.damage(game, self)
             else:

@@ -40,26 +40,31 @@ class Game:
         self.spawn_stack = []
         self.scene: Scene = None
         self.timer = 0
+        self.boss = None
         if self.tilemap.boss is not None:
             self.state = GameState.Scene
             if self.tilemap.boss == "raven":
                 self.boss = raven.Raven()
             elif self.tilemap.boss == "scorpion":
-                self.boss = raven.Raven() # TODO
+                self.boss = raven.Raven()  # TODO
             elif self.tilemap.boss == "gorilla":
                 self.boss = gorilla.Gorilla()
+                self.boss.rect.x = 480 - 64
                 self.scene = scenes.gorilla.scene
 
     def draw(self):
         self.tilemap.draw(self.screen, self.camera)
         if self.boss is not None:
-            self.boss.draw(self.screen, self.camera)
+            self.boss.draw(self)
         for entity in self.entities:
             entity.draw(self.screen, self.camera)
         self.player.draw(self)
 
     def push_spawn(self, x: int, y: int, tile: Tile):
         self.spawn_stack.append((x, y, tile))
+
+    def spawn_entity(self, entity):
+        self.entities.append(entity)
 
     def spawn(self, x: int, y: int, tile: Tile):
         entity = None
@@ -139,5 +144,5 @@ class Game:
             self.camera.y = self.tilemap.height * TILE_SIZE - self.screen.get_height()
         self.camera.x = int(self.camera.x)
         self.camera.y = int(self.camera.y)
-        
+
         self.input.reset()

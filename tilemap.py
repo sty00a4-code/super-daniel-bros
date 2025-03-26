@@ -34,6 +34,7 @@ class Tile:
         """
         self.data[key] = value
 
+
 BACKGROUNDS = [
     image.load("assets/backgrounds/background_1.png"),
 ]
@@ -240,11 +241,13 @@ if __name__ == "__main__":
     category = 0
     selected = 0
     current_tile = 0
+
     def id(name: str) -> int:
         for i, data in enumerate(TILE_DATA):
             if data.name == name:
                 return i
         return 0
+
     camera = Vector2(0, 0)
     move = Vector2(0, 0)
     boss_button = False
@@ -312,6 +315,10 @@ if __name__ == "__main__":
                     current_tile = id(TILE_EDITOR[category][selected])
                 elif e.key == K_6:
                     category = 5
+                    selected = 0
+                    current_tile = id(TILE_EDITOR[category][selected])
+                elif e.key == K_7:
+                    category = 6
                     selected = 0
                     current_tile = id(TILE_EDITOR[category][selected])
                 elif e.key == K_UP:
