@@ -30,6 +30,12 @@ class Barrel(Entity):
         self.vel.x = self.dir * BARREL_SPEED
         self.collide_bodies(dt, game)
         self.collide_player(dt, game)
+        if self.rect.left <= 0:
+            self.destroy(game)
+        if self.rect.right >= game.tilemap.width * TILE_SIZE:
+            self.destroy(game)
+        if self.rect.bottom >= game.tilemap.height * TILE_SIZE:
+            self.destroy(game)
         super().update(dt, game)
         if last_state != self.state:
             self.animations.play(self.state.value)
@@ -59,12 +65,11 @@ class Barrel(Entity):
 
     def draw(self, screen, camera):
         rect = Rect(
-            self.rect.x - camera.x,
-            self.rect.y - camera.y,
+            self.rect.x - camera.x - 16,
+            self.rect.y - camera.y - 16,
             self.rect.width,
             self.rect.height,
         )
         img = self.animations.sprite().copy()
         img = transform.flip(img, self.dir == 1, False)
         screen.blit(img, rect)
-        draw.rect(screen, "red", rect, 1)

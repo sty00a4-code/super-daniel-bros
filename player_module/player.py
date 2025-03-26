@@ -132,6 +132,7 @@ class Player(Entity):
         # dead
         if self.rect.bottom > game.tilemap.height * TILE_SIZE - 1:
             self.rect.bottom = game.tilemap.height * TILE_SIZE - 1
+            self.state = State.Dead
             game.dead()
 
         # state changed, reset time
@@ -142,6 +143,8 @@ class Player(Entity):
         if self.damage_timer >= PLAYER_DAMAGE_COOLDOWN:
             if self.health.damage(damage):
                 game.dead()
+                self.state = State.Dead
+                self.animations.play(self.state.value)
             self.damage_timer = 0
             if entity is not None:
                 self.vel.x = (
