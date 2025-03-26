@@ -26,6 +26,13 @@ class Input:
         self.cursor.x = mouse_pos[0] / 2 + camera.x
         self.cursor.y = mouse_pos[1] / 2 + camera.y
 
+    def start(self):
+        self.left = False
+        self.right = False
+        self.jump = False
+        self.attack = False
+        self.throw = False
+    
     def reset(self):
         self.attack = False
 

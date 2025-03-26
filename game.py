@@ -33,6 +33,7 @@ class Game:
 
     def start(self, name):
         print(f"[LOADED] {name}")
+        self.input.start()
         self.tilemap = load_map(name)
         self.player.start(self.tilemap)
         self.state = GameState.Game

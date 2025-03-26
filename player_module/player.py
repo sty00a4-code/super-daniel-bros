@@ -49,6 +49,7 @@ class Player(Entity):
         self.rect.y = tilemap.spawn[1] * TILE_SIZE
         self.vel = Vector2(0, 0)  # velocity for physics
         self.state = State.Idle
+        self.animations.play(self.state.value)
         self.air_time = 0  # how long in the air
         self.dir = 1  # facing direction
         self.throw_time = 0  # how long since the last time thrown
