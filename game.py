@@ -34,6 +34,7 @@ class Game:
     def start(self, name):
         print(f"[LOADED] {name}")
         self.input.start()
+        self.boss = None
         self.tilemap = load_map(name)
         self.player.start(self.tilemap)
         self.state = GameState.Game
@@ -41,7 +42,6 @@ class Game:
         self.spawn_stack = []
         self.scene: Scene = None
         self.timer = 0
-        self.boss = None
         if self.tilemap.boss is not None:
             self.state = GameState.Scene
             if self.tilemap.boss == "raven":
