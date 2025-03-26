@@ -46,6 +46,7 @@ class Barrel(Entity):
                 if self.rect.colliderect(entity.rect):
                     entity.damage(game, self)
                     self.destroy(game)
+
     def collide_player(self, dt: float, game):
         if self.rect.colliderect(game.player.rect):
             if game.player.state not in [

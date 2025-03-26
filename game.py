@@ -46,7 +46,7 @@ class Game:
             if self.tilemap.boss == "raven":
                 self.boss = raven.Raven()
             elif self.tilemap.boss == "scorpion":
-                self.boss = raven.Raven() # TODO
+                self.boss = raven.Raven()  # TODO
             elif self.tilemap.boss == "gorilla":
                 self.boss = gorilla.Gorilla()
                 self.boss.rect.x = 480 - 64
@@ -62,7 +62,7 @@ class Game:
 
     def push_spawn(self, x: int, y: int, tile: Tile):
         self.spawn_stack.append((x, y, tile))
-    
+
     def spawn_entity(self, entity):
         self.entities.append(entity)
 
@@ -144,5 +144,5 @@ class Game:
             self.camera.y = self.tilemap.height * TILE_SIZE - self.screen.get_height()
         self.camera.x = int(self.camera.x)
         self.camera.y = int(self.camera.y)
-        
+
         self.input.reset()

@@ -1,5 +1,6 @@
 from pygame import *
 
+
 class Input:
     """Input manager
 

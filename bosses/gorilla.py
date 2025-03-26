@@ -211,7 +211,7 @@ class Gorilla(Boss):
     def jump(self, dt, game):
         self.move(((game.player.rect.centerx - self.rect.centerx) / 30))
         self.vel.y = -1500
-    
+
     def stun(self):
         self.boss_state = GorillaBossState.Stunned
         self.state_timer = 0
