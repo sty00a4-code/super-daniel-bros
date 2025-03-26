@@ -122,7 +122,6 @@ class Gorilla(Boss):
             self.damage_timer <= GORILLA_DAMAGE_COOLDOWN and bool(t() // 50_000_000 % 2)
         ):
             game.screen.blit(img, rect)
-        super().draw(game.screen, game.camera)
 
     def handle_stunned(self, dt, game):
         if self.state_timer < GORILLA_STUNNED_TIME:
