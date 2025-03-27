@@ -8,6 +8,7 @@ from pygame import *
 from time import time_ns as t
 from entities.barrel import Barrel
 from entities.egg import Egg
+from entities.gorilla_gravestone import Gravestone
 
 
 class GorillaBossState(Enum):
@@ -16,6 +17,7 @@ class GorillaBossState(Enum):
     Jump = "jump"  # jump attack
     Smash = "smash"  # smashes the ground
     Stunned = "stunned"
+    Dead = "dead"
 
 
 class GorillaState(Enum):
@@ -32,6 +34,7 @@ class GorillaState(Enum):
     Pos1 = "pos1"
     Pos2 = "pos2"
     Pos3 = "pos3"
+    Dead = "dead"
 
 
 GORILLA_SPEED = 60
@@ -54,7 +57,7 @@ class Gorilla(Boss):
     def __init__(self):
         super().__init__()
         self.rect = Rect(0, 0, 64 - 20, 32)
-        self.health = Health(12)
+        self.health = Health(1)
         self.boss_state = GorillaBossState.Idle
         self.state = GorillaState.Idle
         self.boss_state_index = 0
@@ -73,10 +76,17 @@ class Gorilla(Boss):
         self.state_timer += dt
         self.damage_timer += dt
 
-        self.handle_damage(dt, game)
         if self.health.health <= 0:
-            game.boss = None
-            game.goal()
+            self.damage_timer = GORILLA_DAMAGE_COOLDOWN + 1
+            if self.boss_state != GorillaBossState.Dead:
+                gravestone = Gravestone()
+                gravestone.rect.left = self.rect.left
+                gravestone.rect.top = self.rect.top
+                game.spawn_entity(gravestone)
+            self.boss_state = GorillaBossState.Dead
+            self.state = GorillaState.Dead
+        else:
+            self.handle_damage(dt, game)
 
         # print(self.boss_state.value, self.state.value)
         if self.boss_state == GorillaBossState.Idle:
@@ -89,6 +99,8 @@ class Gorilla(Boss):
             self.handle_jump(dt, game)
         elif self.boss_state == GorillaBossState.Smash:
             self.handle_smash(dt, game)
+        elif self.boss_state == GorillaBossState.Dead:
+            self.handle_dead(dt, game)
 
         super().update(dt, game)
         if last_state != self.state:
@@ -97,6 +109,12 @@ class Gorilla(Boss):
     def move(self, acc: float):
         self.vel.x += acc * GORILLA_SPEED
 
+    def handle_dead(self, dt: float, game):
+        if self.rect.bottom > 0:
+            self.vel.y = -200
+        else:
+            game.goal()
+    
     def handle_damage(self, dt: float, game):
         if self.state == GorillaState.Stunned:
             if game.player.rect.colliderect(self.rect):
